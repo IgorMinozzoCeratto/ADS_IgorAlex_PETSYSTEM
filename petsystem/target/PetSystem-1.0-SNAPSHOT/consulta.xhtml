@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:head>
+        <title>Agendamento de Consultas - PetSystem</title>
+    </h:head>
+
+    <h:body>
+        <ui:composition template="/WEB-INF/template.xhtml">
+            <ui:define name="content">
+                <div class="card">
+                    <h:form id="form">
+                        <p:growl id="growl" showDetail="true" />
+                        
+                        <p:tabView>
+                            <p:tab title="Agendamento de Consulta">
+                                <div class="ui-fluid">
+                                    <div class="p-field">
+                                        <p:outputLabel for="animal" value="Animal:" />
+                                        <p:selectOneMenu id="animal" value="#{consultaController.consulta.animal}" required="true"
+                                                         requiredMessage="O campo Animal é obrigatório" converter="#{animalConverter}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
+                                            <f:selectItems value="#{consultaController.animais}" var="animal" 
+                                                           itemLabel="#{animal.nome} (#{animal.tutor.nome})" itemValue="#{animal}" />
+                                        </p:selectOneMenu>
+                                    </div>
+                                    
+                                    <div class="p-field">
+                                        <p:outputLabel for="funcionario" value="Profissional:" />
+                                        <p:selectOneMenu id="funcionario" value="#{consultaController.consulta.funcionario}" required="true"
+                                                         requiredMessage="O campo Profissional é obrigatório" converter="#{funcionarioConverter}">
+                                            <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
+                                            <f:selectItems value="#{consultaController.funcionarios}" var="funcionario" 
+                                                           itemLabel="#{funcionario.nome} (#{funcionario.tipo})" itemValue="#{funcionario}" />
+                                        </p:selectOneMenu>
+                                    </div>
+                                    
+                                    <div class="p-field">
+                                        <p:outputLabel for="dataConsulta" value="Data da Consulta:" />
+                                        <p:datePicker id="dataConsulta" value="#{consultaController.consulta.dataConsulta}" 
+                                                      pattern="dd/MM/yyyy" showIcon="true" required="true"
+                                                      requiredMessage="O campo Data da Consulta é obrigatório" />
+                                    </div>
+                                    
+                                    <div class="p-field">
+                                        <p:outputLabel for="horaConsulta" value="Hora da Consulta:" />
+                                        <p:datePicker id="horaConsulta" value="#{consultaController.consulta.horaConsulta}" 
+                                                      timeOnly="true" pattern="HH:mm" required="true"
+                                                      requiredMessage="O campo Hora da Consulta é obrigatório" />
+                                    </div>
+                                    
+                                    <div class="p-field">
+                                        <p:outputLabel for="observacoes" value="Observações:" />
+                                        <p:inputTextarea id="observacoes" value="#{consultaController.consulta.observacoes}" rows="5" />
+                                    </div>
+                                    
+                                    <div class="p-field">
+                                        <p:commandButton value="Salvar" action="#{consultaController.salvarConsulta}" 
+                                                         update="growl tabela" styleClass="ui-button-raised" />
+                                        <p:commandButton value="Limpar" action="#{consultaController.prepararNovaConsulta}" 
+                                                         update="@form" process="@this" styleClass="ui-button-secondary" />
+                                    </div>
+                                </div>
+                            </p:tab>
+                            
+                            <p:tab title="Lista de Consultas">
+                                <div class="ui-fluid">
+                                    <div class="p-field">
+                                        <p:outputLabel for="dataFiltro" value="Filtrar por Data:" />
+                                        <p:datePicker id="dataFiltro" value="#{consultaController.dataFiltro}" 
+                                                      pattern="dd/MM/yyyy" showIcon="true" />
+                                        <p:commandButton value="Filtrar" action="#{consultaController.filtrarConsultasPorData}" 
+                                                         update="tabela" styleClass="ui-button-raised" />
+                                        <p:commandButton value="Limpar Filtro" action="#{consultaController.carregarConsultas}" 
+                                                         update="tabela dataFiltro" process="@this" styleClass="ui-button-secondary" />
+                                    </div>
+                                    
+                                    <p:dataTable id="tabela" value="#{consultaController.consultas}" var="consulta" 
+                                                 emptyMessage="Nenhuma consulta encontrada" paginator="true" rows="10"
+                                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                 currentPageReportTemplate="{startRecord}-{endRecord} de {totalRecords} registros"
+                                                 rowsPerPageTemplate="5,10,15">
+                                        
+                                        <p:column headerText="ID">
+                                            <h:outputText value="#{consulta.id}" />
+                                        </p:column>
+                                        
+                                        <p:column headerText="Animal">
+                                            <h:outputText value="#{consulta.animal.nome}" />
+                                        </p:column>
+                                        
+                                        <p:column headerText="Tutor">
+                                            <h:outputText value="#{consulta.animal.tutor.nome}" />
+                                        </p:column>
+                                        
+                                        <p:column headerText="Profissional">
+                                            <h:outputText value="#{consulta.funcionario.nome}" />
+                                        </p:column>
+                                        
+                                        <p:column headerText="Data">
+                                            <h:outputText value="#{consulta.dataConsulta}">
+                                                <f:convertDateTime pattern="dd/MM/yyyy" />
+                                            </h:outputText>
+                                        </p:column>
+                                        
+                                        <p:column headerText="Hora">
+                                            <h:outputText value="#{consulta.horaConsulta}">
+                                                <f:convertDateTime pattern="HH:mm" />
+                                            </h:outputText>
+                                        </p:column>
+                                        
+                                        <p:column headerText="Status">
+                                            <h:outputText value="#{consulta.realizada ? 'Realizada' : 'Agendada'}" />
+                                        </p:column>
+                                        
+                                        <p:column headerText="Ações" style="width:200px">
+                                            <p:commandButton icon="pi pi-pencil" update="@form" 
+                                                             action="#{consultaController.prepararEditarConsulta(consulta)}"
+                                                             styleClass="edit-button rounded-button ui-button-success" />
+                                            <p:commandButton icon="pi pi-trash" update="tabela growl" 
+                                                             action="#{consultaController.excluirConsulta(consulta)}"
+                                                             styleClass="ui-button-danger rounded-button"
+                                                             onclick="return confirm('Confirma a exclusão desta consulta?');" />
+                                            <p:commandButton icon="pi pi-check" update="tabela growl" 
+                                                             action="#{consultaController.marcarComoRealizada(consulta)}"
+                                                             styleClass="ui-button-info rounded-button"
+                                                             rendered="#{!consulta.realizada}"
+                                                             onclick="return confirm('Confirma que esta consulta foi realizada?');" />
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+                            </p:tab>
+                        </p:tabView>
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:head>
+    <title>Cadastro de Tutores - PetSystem</title>
+</h:head>
+
+<h:body>
+<ui:composition template="/WEB-INF/template.xhtml">
+    <ui:define name="content">
+        <div class="card">
+            <h:form id="form">
+                <p:growl id="growl" showDetail="true" />
+
+                <p:tabView id="tabView" widgetVar="tabView">
+                    <!-- Aba de Cadastro -->
+                    <p:tab title="Cadastro de Tutor">
+                        <div class="ui-fluid">
+                            <div class="p-field">
+                                <p:outputLabel for="nome" value="Nome:" />
+                                <p:inputText id="nome" value="#{tutorController.tutor.nome}" required="true"
+                                             requiredMessage="O campo Nome é obrigatório" />
+                            </div>
+
+                            <div class="p-field">
+                                <p:outputLabel for="telefone" value="Telefone:" />
+                                <p:inputMask id="telefone" value="#{tutorController.tutor.telefone}" required="true"
+                                             requiredMessage="O campo Telefone é obrigatório"
+                                             mask="(99) 99999-9999" />
+                            </div>
+
+                            <div class="p-field">
+                                <p:outputLabel for="email" value="Email:" />
+                                <p:inputText id="email" value="#{tutorController.tutor.email}" required="true"
+                                             requiredMessage="O campo Email é obrigatório" />
+                            </div>
+
+                            <div class="p-field">
+                                <p:outputLabel for="endereco" value="Endereço:" />
+                                <p:inputText id="endereco" value="#{tutorController.tutor.endereco}" required="true"
+                                             requiredMessage="O campo Endereço é obrigatório" />
+                            </div>
+
+                            <div class="p-field">
+                                <p:outputLabel for="cpf" value="CPF:" />
+                                <p:inputMask id="cpf" value="#{tutorController.tutor.cpf}" mask="999.999.999-99" />
+                            </div>
+
+                            <div class="p-field">
+                                <p:outputLabel for="senha" value="Senha:" />
+                                <p:password id="senha" value="#{tutorController.tutor.senha}"
+                                            feedback="true" toggleMask="true" />
+                            </div>
+
+                            <div class="p-field">
+                                <p:commandButton value="Salvar"
+                                                 action="#{tutorController.salvarTutor}"
+                                                 update="form:tabView:tabela growl"
+                                                 oncomplete="PF('tabView').select(1);"
+                                                 styleClass="ui-button-raised" />
+
+                                <p:commandButton value="Limpar"
+                                                 action="#{tutorController.prepararNovoTutor}"
+                                                 update="@form"
+                                                 process="@this"
+                                                 styleClass="ui-button-secondary" />
+                            </div>
+                        </div>
+                    </p:tab>
+
+                    <!-- Aba de Lista -->
+                    <p:tab title="Lista de Tutores">
+                        <div class="ui-fluid">
+                            <div class="p-field">
+                                <p:outputLabel for="filtroNome" value="Filtrar por Nome:" />
+                                <p:inputText id="filtroNome" value="#{tutorController.filtroNome}" />
+                                <p:commandButton value="Filtrar"
+                                                 action="#{tutorController.filtrarTutoresPorNome}"
+                                                 update="form:tabView:tabela"
+                                                 styleClass="ui-button-raised" />
+                                <p:commandButton value="Limpar Filtro"
+                                                 action="#{tutorController.carregarTutores}"
+                                                 update="form:tabView:tabela filtroNome"
+                                                 process="@this"
+                                                 styleClass="ui-button-secondary" />
+                            </div>
+
+                            <p:dataTable id="tabela" value="#{tutorController.tutores}" var="tutor"
+                                         emptyMessage="Nenhum tutor encontrado"
+                                         paginator="true" rows="10"
+                                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                         currentPageReportTemplate="{startRecord}-{endRecord} de {totalRecords} registros"
+                                         rowsPerPageTemplate="5,10,15">
+
+                                <p:column headerText="ID">
+                                    <h:outputText value="#{tutor.id}" />
+                                </p:column>
+
+                                <p:column headerText="Nome">
+                                    <h:outputText value="#{tutor.nome}" />
+                                </p:column>
+
+                                <p:column headerText="Telefone">
+                                    <h:outputText value="#{tutor.telefone}" />
+                                </p:column>
+
+                                <p:column headerText="Email">
+                                    <h:outputText value="#{tutor.email}" />
+                                </p:column>
+
+                                <p:column headerText="Ações" style="width:150px">
+                                    <p:commandButton icon="pi pi-pencil"
+                                                     action="#{tutorController.prepararEditarTutor(tutor)}"
+                                                     update="form"
+                                                     oncomplete="PF('tabView').select(0);"
+                                                     process="@this"
+                                                     styleClass="edit-button rounded-button ui-button-success" />
+
+                                    <p:commandButton icon="pi pi-trash"
+                                                     action="#{tutorController.excluirTutor(tutor)}"
+                                                     update="form:tabView:tabela growl"
+                                                     process="@this"
+                                                     styleClass="ui-button-danger rounded-button"
+                                                     onclick="return confirm('Confirma a exclusão deste tutor?');" />
+                                </p:column>
+
+                            </p:dataTable>
+                        </div>
+                    </p:tab>
+                </p:tabView>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>
+</h:body>
+</html>

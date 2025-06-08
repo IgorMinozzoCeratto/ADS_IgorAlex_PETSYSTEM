@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <h:head>
+        <title>Cadastro de Animais - PetSystem</title>
+    </h:head>
+
+    <h:body>
+        <ui:composition template="/WEB-INF/template.xhtml">
+            <ui:define name="content">
+                <div class="card">
+                    <h:form id="form">
+                        <p:growl id="growl" showDetail="true" />
+
+                        <p:tabView id="tabView" widgetVar="tabView">
+                            <p:tab id="cadastro" title="Cadastro de Animal">
+                                <div class="ui-fluid">
+
+                                    <div class="p-field">
+                                        <p:outputLabel for="nome" value="Nome:" />
+                                        <p:inputText id="nome" value="#{animalController.animal.nome}" required="true"
+                                                     requiredMessage="O campo Nome é obrigatório" />
+                                    </div>
+
+                                    <div class="p-field">
+                                        <p:outputLabel for="especie" value="Espécie:" />
+                                        <p:selectOneMenu id="especie" value="#{animalController.animal.especie}" required="true"
+                                                         requiredMessage="O campo Espécie é obrigatório">
+                                            <f:selectItem itemLabel="Selecione" itemValue="" noSelectionOption="true" />
+                                            <f:selectItems value="#{animalController.especies}" var="especie"
+                                                           itemLabel="#{especie}" itemValue="#{especie}" />
+                                        </p:selectOneMenu>
+                                    </div>
+
+                                    <div class="p-field">
+                                        <p:outputLabel for="raca" value="Raça:" />
+                                        <p:inputText id="raca" value="#{animalController.animal.raca}" />
+                                    </div>
+
+                                    <div class="p-field">
+                                        <p:outputLabel for="dataNascimento" value="Data de Nascimento:" />
+                                        <p:datePicker id="dataNascimento" value="#{animalController.animal.dataNascimento}"
+                                                      pattern="dd/MM/yyyy" showIcon="true" />
+                                    </div>
+
+                                    <div class="p-field">
+                                        <p:outputLabel for="peso" value="Peso (kg):" />
+                                        <p:inputNumber id="peso" value="#{animalController.animal.peso}"
+                                                       decimalPlaces="2" decimalSeparator="," thousandSeparator="." />
+                                    </div>
+
+                                    <div class="p-field">
+                                        <p:outputLabel for="tutor" value="Tutor:" />
+                                        <p:selectOneMenu id="tutor" value="#{animalController.animal.tutor}" required="true"
+                                                         requiredMessage="O campo Tutor é obrigatório" styleClass="form-control">
+                                            <f:selectItem itemLabel="Selecione" itemValue="#{null}" noSelectionOption="true" />
+                                            <f:selectItems value="#{animalController.tutores}" var="tutor"
+                                                           itemLabel="#{tutor.nome}" itemValue="#{tutor}" />
+                                            <f:converter converterId="tutorConverter" />
+                                        </p:selectOneMenu>
+                                    </div>
+
+                                    <div class="p-field">
+                                        <p:outputLabel for="observacoes" value="Observações:" />
+                                        <p:inputTextarea id="observacoes" value="#{animalController.animal.observacoes}" rows="5" />
+                                    </div>
+
+                                    <div class="p-field">
+                                        <p:commandButton value="Salvar" action="#{animalController.salvarAnimal}"
+                                                         update="growl tabela" styleClass="ui-button-raised" />
+                                        <p:commandButton value="Limpar" action="#{animalController.prepararNovoAnimal}"
+                                                         update="@form" process="@this" styleClass="ui-button-secondary" />
+                                    </div>
+                                </div>
+                            </p:tab>
+
+                            <p:tab title="Lista de Animais">
+                                <div class="ui-fluid">
+                                    <div class="p-field">
+                                        <p:outputLabel for="filtroNome" value="Filtrar por Nome:" />
+                                        <p:inputText id="filtroNome" value="#{animalController.filtroNome}" />
+                                        <p:commandButton value="Filtrar" action="#{animalController.filtrarAnimaisPorNome}"
+                                                         update="tabela" styleClass="ui-button-raised" />
+                                        <p:commandButton value="Limpar Filtro" action="#{animalController.carregarAnimais}"
+                                                         update="tabela filtroNome" process="@this" styleClass="ui-button-secondary" />
+                                    </div>
+
+                                    <p:dataTable id="tabela" value="#{animalController.animais}" var="animal"
+                                                 emptyMessage="Nenhum animal encontrado" paginator="true" rows="10"
+                                                 paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                                 currentPageReportTemplate="{startRecord}-{endRecord} de {totalRecords} registros"
+                                                 rowsPerPageTemplate="5,10,15">
+
+                                        <p:column headerText="ID">
+                                            <h:outputText value="#{animal.id}" />
+                                        </p:column>
+
+                                        <p:column headerText="Nome">
+                                            <h:outputText value="#{animal.nome}" />
+                                        </p:column>
+
+                                        <p:column headerText="Espécie">
+                                            <h:outputText value="#{animal.especie}" />
+                                        </p:column>
+
+                                        <p:column headerText="Raça">
+                                            <h:outputText value="#{animal.raca}" />
+                                        </p:column>
+
+                                        <p:column headerText="Tutor">
+                                            <h:outputText value="#{animal.tutor.nome}" />
+                                        </p:column>
+
+                                        <p:column headerText="Ações" style="width:150px">
+                                            <p:commandButton icon="pi pi-pencil"
+                                                             action="#{animalController.prepararEditarAnimal(animal)}"
+                                                             update="form"
+                                                             oncomplete="PF('tabView').select(0);"
+                                                             process="@this"
+                                                             styleClass="edit-button rounded-button ui-button-success" />
+
+
+                                            <p:commandButton icon="pi pi-trash"
+                                                             action="#{animalController.excluirAnimal(animal)}"
+                                                             update="tabela growl"
+                                                             process="@this"
+                                                             styleClass="ui-button-danger rounded-button"
+                                                             onclick="return confirm('Confirma a exclusão deste animal?');" />
+
+                                        </p:column>
+                                    </p:dataTable>
+                                </div>
+                            </p:tab>
+                        </p:tabView>
+                    </h:form>
+                </div>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>

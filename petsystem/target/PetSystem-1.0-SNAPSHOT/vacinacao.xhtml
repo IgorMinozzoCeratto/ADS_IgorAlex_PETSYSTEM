@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+<h:head>
+    <title>Registro de Vacinação - PetSystem</title>
+</h:head>
+
+<h:body>
+<ui:composition template="/WEB-INF/template.xhtml">
+    <ui:define name="content">
+        <div class="card">
+            <h:form id="form">
+                <p:growl id="growl" showDetail="true" />
+
+                <p:tabView>
+                    <p:tab title="Registro de Vacinação">
+                        <div class="ui-fluid">
+                            <div class="p-field">
+                                <p:outputLabel for="animal" value="Animal:" />
+                                <p:selectOneMenu id="animal" value="#{vacinacaoController.vacinacao.animal}" required="true"
+                                                 requiredMessage="O campo Animal é obrigatório" converter="#{animalConverter}">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
+                                    <f:selectItems value="#{vacinacaoController.animais}" var="animal"
+                                                   itemLabel="#{animal.nome} (#{animal.tutor.nome})" itemValue="#{animal}" />
+                                </p:selectOneMenu>
+                            </div>
+
+                            <div class="p-field">
+                                <p:outputLabel for="tipoVacina" value="Tipo de Vacina:" />
+                                <p:inputText id="tipoVacina" value="#{vacinacaoController.vacinacao.tipoVacina}" required="true"
+                                             requiredMessage="O campo Tipo de Vacina é obrigatório" />
+                            </div>
+
+                            <div class="p-field">
+                                <p:outputLabel for="dataAplicacao" value="Data da Aplicação:" />
+                                <p:datePicker id="dataAplicacao" value="#{vacinacaoController.vacinacao.dataAplicacao}"
+                                              pattern="dd/MM/yyyy" showIcon="true" required="true"
+                                              requiredMessage="O campo Data da Aplicação é obrigatório" />
+                            </div>
+
+                            <div class="p-field">
+                                <p:outputLabel for="lote" value="Lote:" />
+                                <p:inputText id="lote" value="#{vacinacaoController.vacinacao.lote}" />
+                            </div>
+
+                            <div class="p-field">
+                                <p:outputLabel for="veterinario" value="Veterinário:" />
+                                <p:selectOneMenu id="veterinario" value="#{vacinacaoController.vacinacao.funcionario}" required="true"
+                                                 requiredMessage="O campo Veterinário é obrigatório" converter="#{funcionarioConverter}">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
+                                    <f:selectItems value="#{vacinacaoController.veterinarios}" var="veterinario"
+                                                   itemLabel="#{veterinario.nome}" itemValue="#{veterinario}" />
+                                </p:selectOneMenu>
+                            </div>
+
+                            <div class="p-field">
+                                <p:outputLabel for="observacoes" value="Observações:" />
+                                <p:inputTextarea id="observacoes" value="#{vacinacaoController.vacinacao.observacoes}" rows="5" />
+                            </div>
+
+                            <div class="p-field">
+                                <p:commandButton value="Salvar"
+                                                 action="#{vacinacaoController.salvarVacinacao}"
+                                                 update="growl tabela"
+                                                 styleClass="ui-button-raised" />
+                                <p:commandButton value="Limpar"
+                                                 action="#{vacinacaoController.prepararNovaVacinacao}"
+                                                 update="@form"
+                                                 process="@this"
+                                                 styleClass="ui-button-secondary" />
+                            </div>
+                        </div>
+                    </p:tab>
+
+                    <p:tab title="Histórico de Vacinação">
+                        <div class="ui-fluid">
+                            <div class="p-field">
+                                <p:outputLabel for="animalFiltro" value="Filtrar por Animal:" />
+                                <p:selectOneMenu id="animalFiltro" value="#{vacinacaoController.animalSelecionado}"
+                                                 converter="#{animalConverter}">
+                                    <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
+                                    <f:selectItems value="#{vacinacaoController.animais}" var="animal"
+                                                   itemLabel="#{animal.nome} (#{animal.tutor.nome})" itemValue="#{animal}" />
+                                </p:selectOneMenu>
+                                <p:commandButton value="Filtrar"
+                                                 action="#{vacinacaoController.filtrarVacinacoesPorAnimal}"
+                                                 update="tabela"
+                                                 styleClass="ui-button-raised" />
+                                <p:commandButton value="Limpar Filtro"
+                                                 action="#{vacinacaoController.carregarVacinacoes}"
+                                                 update="tabela animalFiltro"
+                                                 process="@this"
+                                                 styleClass="ui-button-secondary" />
+                            </div>
+
+                            <p:dataTable id="tabela" value="#{vacinacaoController.vacinacoes}" var="vacinacao"
+                                         emptyMessage="Nenhum registro de vacinação encontrado"
+                                         paginator="true" rows="10"
+                                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                                         currentPageReportTemplate="{startRecord}-{endRecord} de {totalRecords} registros"
+                                         rowsPerPageTemplate="5,10,15">
+
+                                <p:column headerText="ID">
+                                    <h:outputText value="#{vacinacao.id}" />
+                                </p:column>
+
+                                <p:column headerText="Animal">
+                                    <h:outputText value="#{vacinacao.animal.nome}" />
+                                </p:column>
+
+                                <p:column headerText="Tipo de Vacina">
+                                    <h:outputText value="#{vacinacao.tipoVacina}" />
+                                </p:column>
+
+                                <p:column headerText="Data da Aplicação">
+                                    <h:outputText value="#{vacinacao.dataAplicacao}">
+                                        <f:convertDateTime pattern="dd/MM/yyyy" />
+                                    </h:outputText>
+                                </p:column>
+
+                                <p:column headerText="Lote">
+                                    <h:outputText value="#{vacinacao.lote}" />
+                                </p:column>
+
+                                <p:column headerText="Veterinário">
+                                    <h:outputText value="#{vacinacao.funcionario.nome}" />
+                                </p:column>
+
+                                <p:column headerText="Ações" style="width:150px">
+                                    <p:commandButton icon="pi pi-pencil"
+                                                     update="@form"
+                                                     action="#{vacinacaoController.prepararEditarVacinacao(vacinacao)}"
+                                                     styleClass="edit-button rounded-button ui-button-success" />
+                                    <p:commandButton icon="pi pi-trash"
+                                                     update="tabela growl"
+                                                     action="#{vacinacaoController.excluirVacinacao(vacinacao)}"
+                                                     styleClass="ui-button-danger rounded-button"
+                                                     onclick="return confirm('Confirma a exclusão deste registro de vacinação?');" />
+                                </p:column>
+                            </p:dataTable>
+                        </div>
+                    </p:tab>
+                </p:tabView>
+            </h:form>
+        </div>
+    </ui:define>
+</ui:composition>
+</h:body>
+</html>
