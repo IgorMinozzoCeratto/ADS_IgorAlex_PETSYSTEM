@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -48,9 +49,19 @@
                                     rendered="#{loginController.funcionario1 or loginController.funcionario2}" />
                         <p:menuitem value="Animais" icon="pi pi-heart" outcome="/animal.xhtml" 
                                     rendered="#{loginController.funcionario1}" />
+                        <p:menuitem value="Perfis" icon="pi pi-id-card" outcome="/perfil/lista.xhtml" 
+                                    rendered="#{loginController.funcionario1}" />
+                        <p:menuitem value="Espécies" icon="pi pi-paw" outcome="/especie/lista.xhtml" 
+                                    rendered="#{loginController.funcionario1}" />
+                        <p:menuitem value="Raças" icon="pi pi-sitemap" outcome="/raca/lista.xhtml" 
+                                    rendered="#{loginController.funcionario1}" />
+                        <p:menuitem value="Convênios" icon="pi pi-building" outcome="/convenio/lista.xhtml" 
+                                    rendered="#{loginController.funcionario1}" />
                     </p:submenu>
                     
                     <p:submenu label="Atendimento" icon="pi pi-calendar" rendered="#{loginController.logado}">
+                        <p:menuitem value="Prontuários" icon="pi pi-book" outcome="/prontuario/lista.xhtml" 
+                                    rendered="#{loginController.funcionario2}" />
                         <p:menuitem value="Consultas" icon="pi pi-calendar-plus" outcome="/consulta.xhtml" 
                                     rendered="#{loginController.funcionario2}" />
                         <p:menuitem value="Vacinação" icon="pi pi-check-circle" outcome="/vacinacao.xhtml" 
@@ -58,8 +69,18 @@
                         <p:menuitem value="Exames" icon="pi pi-file-o" outcome="/exame.xhtml" 
                                     rendered="#{loginController.funcionario2}" />
                     </p:submenu>
-                    
 
+                    <p:submenu label="Financeiro" icon="pi pi-dollar" rendered="#{loginController.logado}">
+                        <p:menuitem value="Movimentações" icon="pi pi-chart-line" outcome="/financeiro/lista.xhtml" 
+                                    rendered="#{loginController.funcionario1}" />
+                        <p:menuitem value="Pagamentos" icon="pi pi-wallet" outcome="/pagamento/lista.xhtml" 
+                                    rendered="#{loginController.funcionario1}" />
+                    </p:submenu>
+
+                    <p:submenu label="Logs" icon="pi pi-history" rendered="#{loginController.logado}">
+                        <p:menuitem value="Logs de Acesso" icon="pi pi-list" outcome="/logAcesso/lista.xhtml" 
+                                    rendered="#{loginController.funcionario1}" />
+                    </p:submenu>
                     
                     <f:facet name="options">
                         <p:outputLabel value="Bem-vindo, #{loginController.funcionarioLogado.nome}!" 
@@ -94,3 +115,4 @@
         </div>
     </h:body>
 </html>
+

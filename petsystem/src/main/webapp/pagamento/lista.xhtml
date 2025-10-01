@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Lista de Pagamentos</title>
+    </h:head>
+
+    <h:body>
+        <p:panel header="Pagamentos Registrados">
+            <h:form>
+                <p:commandButton value="Novo Pagamento" action="cadastro.xhtml" icon="pi pi-plus" styleClass="ui-button-success"/>
+                <p:spacer height="10"/>
+
+                <p:dataTable value="#{pagamentoController.listaPagamentos}" var="pag" emptyMessage="Nenhum pagamento encontrado.">
+                    <p:column headerText="ID">
+                        <h:outputText value="#{pag.id}"/>
+                    </p:column>
+                    <p:column headerText="Valor Pago">
+                        <h:outputText value="#{pag.valorPago}">
+                            <f:convertNumber type="currency" currencySymbol="R$" locale="pt_BR"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Data Pagamento">
+                        <h:outputText value="#{pag.dataPagamento}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Forma Pagamento">
+                        <h:outputText value="#{pag.formaPagamento}"/>
+                    </p:column>
+                    <p:column headerText="Tutor">
+                        <h:outputText value="#{pag.tutor.nome}"/>
+                    </p:column>
+                    <p:column headerText="Movimentação Financeira">
+                        <h:outputText value="#{pag.movimentacao.descricao} (ID: #{pag.movimentacao.id})"/>
+                    </p:column>
+                    <p:column headerText="Consulta">
+                        <h:outputText value="#{pag.consulta.id != null ? 'Consulta ID: ' += pag.consulta.id : 'N/A'}"/>
+                    </p:column>
+                    <p:column headerText="Ações">
+                        <p:commandButton value="Editar" action="#{pagamentoController.editar(pag)}" icon="pi pi-pencil" styleClass="ui-button-info"/>
+                        <p:commandButton value="Excluir" action="#{pagamentoController.excluir(pag)}" icon="pi pi-trash" styleClass="ui-button-danger" update="@form">
+                            <p:confirm header="Confirmação" message="Deseja realmente excluir este pagamento?" icon="pi pi-exclamation-triangle"/>
+                        </p:commandButton>
+                    </p:column>
+                </p:dataTable>
+
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                    <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                    <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes"/>
+                </p:confirmDialog>
+            </h:form>
+        </p:panel>
+    </h:body>
+</html>
+

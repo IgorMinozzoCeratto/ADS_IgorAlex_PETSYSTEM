@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Cadastro de Prontuário</title>
+    </h:head>
+
+    <h:body>
+        <p:panel header="Cadastro de Prontuário">
+            <h:form>
+                <p:messages id="messages" showDetail="true" closable="true"/>
+
+                <p:panelGrid columns="2" layout="grid">
+                    <p:outputLabel for="animal" value="Animal:"/>
+                    <p:selectOneMenu id="animal" value="#{prontuarioController.animalSelecionado}" converter="#{animalConverter}" required="true" requiredMessage="O animal é obrigatório.">
+                        <f:selectItem itemLabel="Selecione um Animal" itemValue="" noSelectionOption="true"/>
+                        <f:selectItems value="#{prontuarioController.listaAnimais}" var="a" itemLabel="#{a.nome} (Tutor: #{a.tutor.nome})" itemValue="#{a}"/>
+                    </p:selectOneMenu>
+
+                    <p:outputLabel for="observacoes" value="Observações:"/>
+                    <p:inputTextarea id="observacoes" value="#{prontuarioController.prontuario.observacoes}" rows="5" cols="30"/>
+                </p:panelGrid>
+
+                <p:commandButton value="Salvar" action="#{prontuarioController.salvar()}" update="@form" icon="pi pi-save" styleClass="ui-button-primary"/>
+                <p:commandButton value="Voltar" action="lista.xhtml?faces-redirect=true" immediate="true" icon="pi pi-arrow-left" styleClass="ui-button-secondary"/>
+            </h:form>
+        </p:panel>
+    </h:body>
+</html>
+

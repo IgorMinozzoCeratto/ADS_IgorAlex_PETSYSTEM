@@ -1,20 +1,21 @@
+
 package br.upf.projetojfprimefaces.controller;
 
-import br.upf.projetojfprimefaces.entity.AnimalEntity;
 import br.upf.projetojfprimefaces.entity.ConsultaEntity;
 import br.upf.projetojfprimefaces.entity.FuncionarioEntity;
-import br.upf.projetojfprimefaces.facade.AnimalFacade;
+import br.upf.projetojfprimefaces.entity.ProntuarioEntity;
 import br.upf.projetojfprimefaces.facade.ConsultaFacade;
 import br.upf.projetojfprimefaces.facade.FuncionarioFacade;
-import jakarta.annotation.PostConstruct;
-import jakarta.ejb.EJB;
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
-import jakarta.inject.Named;
+import br.upf.projetojfprimefaces.facade.ProntuarioFacade;
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.inject.Named;
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Named
@@ -27,49 +28,53 @@ public class ConsultaController implements Serializable {
     private ConsultaFacade consultaFacade;
     
     @EJB
-    private AnimalFacade animalFacade;
+    private ProntuarioFacade prontuarioFacade;
     
     @EJB
     private FuncionarioFacade funcionarioFacade;
     
     private ConsultaEntity consulta;
     private List<ConsultaEntity> consultas;
-    private List<AnimalEntity> animais;
-    private List<FuncionarioEntity> funcionarios;
-    private Date dataFiltro;
-    private AnimalEntity animalSelecionado;
+    private List<ProntuarioEntity> prontuarios;
+    private List<FuncionarioEntity> veterinarios;
+    private OffsetDateTime dataFiltro;
+    private ProntuarioEntity prontuarioSelecionado;
+    private FuncionarioEntity veterinarioSelecionado;
     
     @PostConstruct
     public void init() {
         consulta = new ConsultaEntity();
         consultas = new ArrayList<>();
-        animais = new ArrayList<>();
-        funcionarios = new ArrayList<>();
-        carregarAnimais();
-        carregarFuncionarios();
+        prontuarios = new ArrayList<>();
+        veterinarios = new ArrayList<>();
+        carregarProntuarios();
+        carregarVeterinarios();
+        carregarConsultas();
     }
     
-    public void carregarAnimais() {
+    public void carregarProntuarios() {
         try {
-            animais = animalFacade.buscarTodos();
+            prontuarios = prontuarioFacade.findAll();
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar animais: " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar prontuários: " + e.getMessage()));
         }
     }
     
-    public void carregarFuncionarios() {
+    public void carregarVeterinarios() {
         try {
-            funcionarios = funcionarioFacade.buscarTodos();
+            // Assumindo que veterinários são funcionários com um perfil específico
+            // Ou que todos os funcionários podem ser veterinários para fins de consulta
+            veterinarios = funcionarioFacade.findAll(); // TODO: Filtrar por perfil de veterinário se aplicável
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar funcionários: " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar veterinários: " + e.getMessage()));
         }
     }
     
     public void carregarConsultas() {
         try {
-            consultas = consultaFacade.buscarTodas();
+            consultas = consultaFacade.findAll();
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar consultas: " + e.getMessage()));
@@ -79,7 +84,8 @@ public class ConsultaController implements Serializable {
     public void filtrarConsultasPorData() {
         try {
             if (dataFiltro != null) {
-                consultas = consultaFacade.buscarPorData(dataFiltro);
+                // consultas = consultaFacade.buscarPorData(dataFiltro);
+                adicionarMensagemAviso("Filtro por data ainda não implementado na fachada.");
             } else {
                 carregarConsultas();
             }
@@ -89,30 +95,46 @@ public class ConsultaController implements Serializable {
         }
     }
     
-    public void filtrarConsultasPorAnimal() {
+    public void filtrarConsultasPorProntuario() {
         try {
-            if (animalSelecionado != null) {
-                consultas = consultaFacade.buscarPorAnimal(animalSelecionado);
+            if (prontuarioSelecionado != null) {
+                // consultas = consultaFacade.buscarPorProntuario(prontuarioSelecionado);
+                adicionarMensagemAviso("Filtro por prontuário ainda não implementado na fachada.");
             } else {
                 carregarConsultas();
             }
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao filtrar consultas por animal: " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao filtrar consultas por prontuário: " + e.getMessage()));
         }
     }
     
     public void prepararNovaConsulta() {
         consulta = new ConsultaEntity();
         consulta.setRealizada(false);
+        prontuarioSelecionado = null;
+        veterinarioSelecionado = null;
     }
     
     public void prepararEditarConsulta(ConsultaEntity consultaSelecionada) {
         consulta = consultaSelecionada;
+        prontuarioSelecionado = consultaSelecionada.getProntuario();
+        veterinarioSelecionado = consultaSelecionada.getVeterinario();
     }
     
     public void salvarConsulta() {
         try {
+            if (prontuarioSelecionado == null) {
+                adicionarMensagemAviso("Selecione um prontuário!");
+                return;
+            }
+            if (veterinarioSelecionado == null) {
+                adicionarMensagemAviso("Selecione um veterinário!");
+                return;
+            }
+            consulta.setProntuario(prontuarioSelecionado);
+            consulta.setVeterinario(veterinarioSelecionado);
+            
             if (consulta.getId() == null) {
                 consultaFacade.create(consulta);
                 FacesContext.getCurrentInstance().addMessage(null, 
@@ -123,11 +145,8 @@ public class ConsultaController implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Consulta atualizada com sucesso!"));
             }
             
-            // Recarrega a lista de consultas
             carregarConsultas();
-            
-            // Limpa o formulário
-            consulta = new ConsultaEntity();
+            prepararNovaConsulta();
             
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
@@ -141,7 +160,6 @@ public class ConsultaController implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null, 
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Consulta excluída com sucesso!"));
             
-            // Recarrega a lista de consultas
             carregarConsultas();
             
         } catch (Exception e) {
@@ -157,7 +175,6 @@ public class ConsultaController implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null, 
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Consulta marcada como realizada!"));
             
-            // Recarrega a lista de consultas
             carregarConsultas();
             
         } catch (Exception e) {
@@ -183,35 +200,59 @@ public class ConsultaController implements Serializable {
         this.consultas = consultas;
     }
 
-    public List<AnimalEntity> getAnimais() {
-        return animais;
+    public List<ProntuarioEntity> getProntuarios() {
+        return prontuarios;
     }
 
-    public void setAnimais(List<AnimalEntity> animais) {
-        this.animais = animais;
+    public void setProntuarios(List<ProntuarioEntity> prontuarios) {
+        this.prontuarios = prontuarios;
     }
 
-    public List<FuncionarioEntity> getFuncionarios() {
-        return funcionarios;
+    public List<FuncionarioEntity> getVeterinarios() {
+        return veterinarios;
     }
 
-    public void setFuncionarios(List<FuncionarioEntity> funcionarios) {
-        this.funcionarios = funcionarios;
+    public void setVeterinarios(List<FuncionarioEntity> veterinarios) {
+        this.veterinarios = veterinarios;
     }
 
-    public Date getDataFiltro() {
+    public OffsetDateTime getDataFiltro() {
         return dataFiltro;
     }
 
-    public void setDataFiltro(Date dataFiltro) {
+    public void setDataFiltro(OffsetDateTime dataFiltro) {
         this.dataFiltro = dataFiltro;
     }
 
-    public AnimalEntity getAnimalSelecionado() {
-        return animalSelecionado;
+    public ProntuarioEntity getProntuarioSelecionado() {
+        return prontuarioSelecionado;
     }
 
-    public void setAnimalSelecionado(AnimalEntity animalSelecionado) {
-        this.animalSelecionado = animalSelecionado;
+    public void setProntuarioSelecionado(ProntuarioEntity prontuarioSelecionado) {
+        this.prontuarioSelecionado = prontuarioSelecionado;
+    }
+
+    public FuncionarioEntity getVeterinarioSelecionado() {
+        return veterinarioSelecionado;
+    }
+
+    public void setVeterinarioSelecionado(FuncionarioEntity veterinarioSelecionado) {
+        this.veterinarioSelecionado = veterinarioSelecionado;
+    }
+    
+    private void adicionarMensagemInfo(String mensagem) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", mensagem));
+    }
+
+    private void adicionarMensagemErro(String mensagem) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", mensagem));
+    }
+
+    private void adicionarMensagemAviso(String mensagem) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Aviso", mensagem));
     }
 }
+

@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+    <h:head>
+        <title>Lista de Prontuários</title>
+    </h:head>
+
+    <h:body>
+        <p:panel header="Prontuários Cadastrados">
+            <h:form>
+                <p:commandButton value="Novo Prontuário" action="cadastro.xhtml" icon="pi pi-plus" styleClass="ui-button-success"/>
+                <p:spacer height="10"/>
+
+                <p:dataTable value="#{prontuarioController.listaProntuarios}" var="prontuario" emptyMessage="Nenhum prontuário encontrado.">
+                    <p:column headerText="ID">
+                        <h:outputText value="#{prontuario.id}"/>
+                    </p:column>
+                    <p:column headerText="Animal">
+                        <h:outputText value="#{prontuario.animal.nome}"/>
+                    </p:column>
+                    <p:column headerText="Data de Criação">
+                        <h:outputText value="#{prontuario.dataCriacao}">
+                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" timeZone="America/Sao_Paulo"/>
+                        </h:outputText>
+                    </p:column>
+                    <p:column headerText="Observações">
+                        <h:outputText value="#{prontuario.observacoes}"/>
+                    </p:column>
+                    <p:column headerText="Ações">
+                        <p:commandButton value="Editar" action="#{prontuarioController.editar(prontuario)}" icon="pi pi-pencil" styleClass="ui-button-info"/>
+                        <p:commandButton value="Excluir" action="#{prontuarioController.excluir(prontuario)}" icon="pi pi-trash" styleClass="ui-button-danger" update="@form">
+                            <p:confirm header="Confirmação" message="Deseja realmente excluir este prontuário?" icon="pi pi-exclamation-triangle"/>
+                        </p:commandButton>
+                    </p:column>
+                </p:dataTable>
+
+                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                    <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                    <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes"/>
+                </p:confirmDialog>
+            </h:form>
+        </p:panel>
+    </h:body>
+</html>
+

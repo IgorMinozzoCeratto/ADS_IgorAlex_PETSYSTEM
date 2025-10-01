@@ -28,7 +28,7 @@
             <classifier>jakarta</classifier>
         </dependency>
         
-        <!-- dependência local do manhattan -->
+        
         <dependency>
             <groupId>org.primefaces.themes</groupId>
             <artifactId>manhattan</artifactId>

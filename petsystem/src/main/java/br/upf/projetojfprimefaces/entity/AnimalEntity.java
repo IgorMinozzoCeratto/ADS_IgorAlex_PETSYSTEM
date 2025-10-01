@@ -1,20 +1,19 @@
+
 package br.upf.projetojfprimefaces.entity;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -24,10 +23,6 @@ import java.util.Objects;
 public class AnimalEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
-    public enum EspecieAnimal {
-        CACHORRO, GATO, AVE, ROEDOR, REPTIL, OUTRO
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,33 +33,46 @@ public class AnimalEntity implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
-    @Column(name = "nome")
+    @Column(name = "nome", nullable = false, length = 100)
     private String nome;
-
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "especie")
-    @Enumerated(EnumType.STRING)
-    private EspecieAnimal especie;
-
-    @Size(max = 50)
-    @Column(name = "raca")
-    private String raca;
 
     @Column(name = "data_nascimento")
     @Temporal(TemporalType.DATE)
     private Date dataNascimento;
 
-    @Column(name = "peso")
+    @Column(name = "peso", precision = 6, scale = 2)
     private Double peso;
 
-    @Size(max = 500)
-    @Column(name = "observacoes")
+    @Column(name = "observacoes", columnDefinition = "TEXT")
     private String observacoes;
-    
+
+    @Size(max = 255)
+    @Column(name = "foto_url", length = 255)
+    private String fotoUrl;
+
+    @NotNull
+    @JoinColumn(name = "id_tutor", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_tutor", referencedColumnName = "id")
     private TutorEntity tutor;
+
+    @NotNull
+    @JoinColumn(name = "id_raca", referencedColumnName = "id", nullable = false)
+    @ManyToOne(optional = false)
+    private RacaEntity raca;
+
+    public AnimalEntity() {
+    }
+
+    public AnimalEntity(Integer id) {
+        this.id = id;
+    }
+
+    public AnimalEntity(Integer id, String nome, TutorEntity tutor, RacaEntity raca) {
+        this.id = id;
+        this.nome = nome;
+        this.tutor = tutor;
+        this.raca = raca;
+    }
 
     public Integer getId() {
         return id;
@@ -80,22 +88,6 @@ public class AnimalEntity implements Serializable {
 
     public void setNome(String nome) {
         this.nome = nome;
-    }
-
-    public EspecieAnimal getEspecie() {
-        return especie;
-    }
-
-    public void setEspecie(EspecieAnimal especie) {
-        this.especie = especie;
-    }
-
-    public String getRaca() {
-        return raca;
-    }
-
-    public void setRaca(String raca) {
-        this.raca = raca;
     }
 
     public Date getDataNascimento() {
@@ -122,12 +114,28 @@ public class AnimalEntity implements Serializable {
         this.observacoes = observacoes;
     }
 
+    public String getFotoUrl() {
+        return fotoUrl;
+    }
+
+    public void setFotoUrl(String fotoUrl) {
+        this.fotoUrl = fotoUrl;
+    }
+
     public TutorEntity getTutor() {
         return tutor;
     }
 
     public void setTutor(TutorEntity tutor) {
         this.tutor = tutor;
+    }
+
+    public RacaEntity getRaca() {
+        return raca;
+    }
+
+    public void setRaca(RacaEntity raca) {
+        this.raca = raca;
     }
 
     @Override
@@ -154,6 +162,7 @@ public class AnimalEntity implements Serializable {
 
     @Override
     public String toString() {
-        return nome + " (" + especie + ")";
+        return nome + " (" + raca.getNome() + ")";
     }
 }
+

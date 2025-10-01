@@ -1,20 +1,19 @@
+
 package br.upf.projetojfprimefaces.entity;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @Entity
@@ -29,32 +28,39 @@ public class ConsultaEntity implements Serializable {
     @Column(name = "id")
     private Integer id;
 
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "data_consulta")
-    @Temporal(TemporalType.DATE)
-    private Date dataConsulta;
+    @NotNull(message = "A data de agendamento não pode ser nula.")
+    @Column(name = "data_agendamento", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
+    private OffsetDateTime dataAgendamento;
 
-    @Basic(optional = false)
-    @NotNull
-    @Column(name = "hora_consulta")
-    @Temporal(TemporalType.TIME)
-    private Date horaConsulta;
-
-    @Size(max = 500)
-    @Column(name = "observacoes")
-    private String observacoes;
+    @Column(name = "observacoes_clinicas", columnDefinition = "TEXT")
+    private String observacoesClinicas;
 
     @Column(name = "realizada")
-    private Boolean realizada;
+    private Boolean realizada = false;
 
+    @NotNull(message = "O prontuário não pode ser nulo.")
+    @JoinColumn(name = "id_prontuario", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_animal", referencedColumnName = "id")
-    private AnimalEntity animal;
+    private ProntuarioEntity prontuario;
 
+    @NotNull(message = "O veterinário não pode ser nulo.")
+    @JoinColumn(name = "id_veterinario", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_funcionario", referencedColumnName = "id")
-    private FuncionarioEntity funcionario;
+    private FuncionarioEntity veterinario;
+
+    public ConsultaEntity() {
+    }
+
+    public ConsultaEntity(Integer id) {
+        this.id = id;
+    }
+
+    public ConsultaEntity(Integer id, OffsetDateTime dataAgendamento, ProntuarioEntity prontuario, FuncionarioEntity veterinario) {
+        this.id = id;
+        this.dataAgendamento = dataAgendamento;
+        this.prontuario = prontuario;
+        this.veterinario = veterinario;
+    }
 
     public Integer getId() {
         return id;
@@ -64,28 +70,20 @@ public class ConsultaEntity implements Serializable {
         this.id = id;
     }
 
-    public Date getDataConsulta() {
-        return dataConsulta;
+    public OffsetDateTime getDataAgendamento() {
+        return dataAgendamento;
     }
 
-    public void setDataConsulta(Date dataConsulta) {
-        this.dataConsulta = dataConsulta;
+    public void setDataAgendamento(OffsetDateTime dataAgendamento) {
+        this.dataAgendamento = dataAgendamento;
     }
 
-    public Date getHoraConsulta() {
-        return horaConsulta;
+    public String getObservacoesClinicas() {
+        return observacoesClinicas;
     }
 
-    public void setHoraConsulta(Date horaConsulta) {
-        this.horaConsulta = horaConsulta;
-    }
-
-    public String getObservacoes() {
-        return observacoes;
-    }
-
-    public void setObservacoes(String observacoes) {
-        this.observacoes = observacoes;
+    public void setObservacoesClinicas(String observacoesClinicas) {
+        this.observacoesClinicas = observacoesClinicas;
     }
 
     public Boolean getRealizada() {
@@ -96,41 +94,44 @@ public class ConsultaEntity implements Serializable {
         this.realizada = realizada;
     }
 
-    public AnimalEntity getAnimal() {
-        return animal;
+    public ProntuarioEntity getProntuario() {
+        return prontuario;
     }
 
-    public void setAnimal(AnimalEntity animal) {
-        this.animal = animal;
+    public void setProntuario(ProntuarioEntity prontuario) {
+        this.prontuario = prontuario;
     }
 
-    public FuncionarioEntity getFuncionario() {
-        return funcionario;
+    public FuncionarioEntity getVeterinario() {
+        return veterinario;
     }
 
-    public void setFuncionario(FuncionarioEntity funcionario) {
-        this.funcionario = funcionario;
+    public void setVeterinario(FuncionarioEntity veterinario) {
+        this.veterinario = veterinario;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + Objects.hashCode(this.id);
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
         return hash;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
+    public boolean equals(Object object) {
+        if (!(object instanceof ConsultaEntity)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        ConsultaEntity other = (ConsultaEntity) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
-        final ConsultaEntity other = (ConsultaEntity) obj;
-        return Objects.equals(this.id, other.id);
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ConsultaEntity[ id=" + id + " ]";
     }
 }
+

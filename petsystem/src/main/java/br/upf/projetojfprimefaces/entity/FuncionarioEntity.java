@@ -1,18 +1,19 @@
+
 package br.upf.projetojfprimefaces.entity;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -23,10 +24,6 @@ public class FuncionarioEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public enum TipoFuncionario {
-        FUNCIONARIO_1, FUNCIONARIO_2, VETERINARIO
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
@@ -36,41 +33,61 @@ public class FuncionarioEntity implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
-    @Column(name = "nome")
+    @Column(name = "nome", nullable = false, length = 100)
     private String nome;
 
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 50)
-    @Column(name = "login")
+    @Column(name = "login", nullable = false, unique = true, length = 50)
     private String login;
 
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 100)
-    @Column(name = "senha")
+    @Size(min = 1, max = 255)
+    @Column(name = "senha", nullable = false, length = 255)
     private String senha;
 
     @Basic(optional = false)
     @NotNull
-    @Column(name = "tipo")
-    @Enumerated(EnumType.STRING)
-    private TipoFuncionario tipo;
-
-    @Basic(optional = false)
-    @NotNull
     @Size(min = 1, max = 100)
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
     @Basic(optional = false)
     @NotNull
-    @Column(name = "data_contratacao")
+    @Column(name = "data_contratacao", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date dataContratacao;
 
-    @Column(name = "registro_profissional")
+    @Size(max = 100)
+    @Column(name = "registro_profissional", length = 100)
     private String registroProfissional;
+
+    @Column(name = "ativo")
+    private Boolean ativo = true;
+
+    @NotNull
+    @JoinColumn(name = "id_perfil", referencedColumnName = "id", nullable = false)
+    @ManyToOne(optional = false)
+    private PerfilEntity perfil;
+
+    public FuncionarioEntity() {
+    }
+
+    public FuncionarioEntity(Integer id) {
+        this.id = id;
+    }
+
+    public FuncionarioEntity(Integer id, String nome, String login, String senha, String email, Date dataContratacao, PerfilEntity perfil) {
+        this.id = id;
+        this.nome = nome;
+        this.login = login;
+        this.senha = senha;
+        this.email = email;
+        this.dataContratacao = dataContratacao;
+        this.perfil = perfil;
+    }
 
     public Integer getId() {
         return id;
@@ -104,14 +121,6 @@ public class FuncionarioEntity implements Serializable {
         this.senha = senha;
     }
 
-    public TipoFuncionario getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(TipoFuncionario tipo) {
-        this.tipo = tipo;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -136,30 +145,45 @@ public class FuncionarioEntity implements Serializable {
         this.registroProfissional = registroProfissional;
     }
 
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
+
+    public PerfilEntity getPerfil() {
+        return perfil;
+    }
+
+    public void setPerfil(PerfilEntity perfil) {
+        this.perfil = perfil;
+    }
+
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + Objects.hashCode(this.id);
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
         return hash;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
+    public boolean equals(Object object) {
+        if (!(object instanceof FuncionarioEntity)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        FuncionarioEntity other = (FuncionarioEntity) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
-        final FuncionarioEntity other = (FuncionarioEntity) obj;
-        return Objects.equals(this.id, other.id);
+        return true;
     }
 
     @Override
     public String toString() {
-        return nome;
+        return "br.upf.projetojfprimefaces.entity.FuncionarioEntity[ id=" + id + " ]";
     }
+
 }
+

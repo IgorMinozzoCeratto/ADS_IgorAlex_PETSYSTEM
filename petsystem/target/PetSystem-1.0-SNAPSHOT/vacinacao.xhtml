@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -20,12 +21,12 @@
                     <p:tab title="Registro de Vacinação">
                         <div class="ui-fluid">
                             <div class="p-field">
-                                <p:outputLabel for="animal" value="Animal:" />
-                                <p:selectOneMenu id="animal" value="#{vacinacaoController.vacinacao.animal}" required="true"
-                                                 requiredMessage="O campo Animal é obrigatório" converter="#{animalConverter}">
+                                <p:outputLabel for="prontuario" value="Prontuário:" />
+                                <p:selectOneMenu id="prontuario" value="#{vacinacaoController.prontuarioSelecionado}" required="true"
+                                                 requiredMessage="O campo Prontuário é obrigatório" converter="#{prontuarioConverter}">
                                     <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
-                                    <f:selectItems value="#{vacinacaoController.animais}" var="animal"
-                                                   itemLabel="#{animal.nome} (#{animal.tutor.nome})" itemValue="#{animal}" />
+                                    <f:selectItems value="#{vacinacaoController.prontuarios}" var="prontuario"
+                                                   itemLabel="#{prontuario.animal.nome} (ID: #{prontuario.id})" itemValue="#{prontuario}" />
                                 </p:selectOneMenu>
                             </div>
 
@@ -48,12 +49,12 @@
                             </div>
 
                             <div class="p-field">
-                                <p:outputLabel for="veterinario" value="Veterinário:" />
-                                <p:selectOneMenu id="veterinario" value="#{vacinacaoController.vacinacao.funcionario}" required="true"
-                                                 requiredMessage="O campo Veterinário é obrigatório" converter="#{funcionarioConverter}">
+                                <p:outputLabel for="funcionarioAplicador" value="Funcionário Aplicador:" />
+                                <p:selectOneMenu id="funcionarioAplicador" value="#{vacinacaoController.funcionarioAplicadorSelecionado}" required="true"
+                                                 requiredMessage="O campo Funcionário Aplicador é obrigatório" converter="#{funcionarioConverter}">
                                     <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
-                                    <f:selectItems value="#{vacinacaoController.veterinarios}" var="veterinario"
-                                                   itemLabel="#{veterinario.nome}" itemValue="#{veterinario}" />
+                                    <f:selectItems value="#{vacinacaoController.funcionariosAplicadores}" var="funcionario"
+                                                   itemLabel="#{funcionario.nome}" itemValue="#{funcionario}" />
                                 </p:selectOneMenu>
                             </div>
 
@@ -79,20 +80,20 @@
                     <p:tab title="Histórico de Vacinação">
                         <div class="ui-fluid">
                             <div class="p-field">
-                                <p:outputLabel for="animalFiltro" value="Filtrar por Animal:" />
-                                <p:selectOneMenu id="animalFiltro" value="#{vacinacaoController.animalSelecionado}"
-                                                 converter="#{animalConverter}">
+                                <p:outputLabel for="prontuarioFiltro" value="Filtrar por Prontuário:" />
+                                <p:selectOneMenu id="prontuarioFiltro" value="#{vacinacaoController.prontuarioSelecionado}"
+                                                 converter="#{prontuarioConverter}">
                                     <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
-                                    <f:selectItems value="#{vacinacaoController.animais}" var="animal"
-                                                   itemLabel="#{animal.nome} (#{animal.tutor.nome})" itemValue="#{animal}" />
+                                    <f:selectItems value="#{vacinacaoController.prontuarios}" var="prontuario"
+                                                   itemLabel="#{prontuario.animal.nome} (ID: #{prontuario.id})" itemValue="#{prontuario}" />
                                 </p:selectOneMenu>
                                 <p:commandButton value="Filtrar"
-                                                 action="#{vacinacaoController.filtrarVacinacoesPorAnimal}"
+                                                 action="#{vacinacaoController.filtrarVacinacoesPorProntuario}"
                                                  update="tabela"
                                                  styleClass="ui-button-raised" />
                                 <p:commandButton value="Limpar Filtro"
                                                  action="#{vacinacaoController.carregarVacinacoes}"
-                                                 update="tabela animalFiltro"
+                                                 update="tabela prontuarioFiltro"
                                                  process="@this"
                                                  styleClass="ui-button-secondary" />
                             </div>
@@ -108,8 +109,8 @@
                                     <h:outputText value="#{vacinacao.id}" />
                                 </p:column>
 
-                                <p:column headerText="Animal">
-                                    <h:outputText value="#{vacinacao.animal.nome}" />
+                                <p:column headerText="Animal (Prontuário)">
+                                    <h:outputText value="#{vacinacao.prontuario.animal.nome}" />
                                 </p:column>
 
                                 <p:column headerText="Tipo de Vacina">
@@ -126,8 +127,8 @@
                                     <h:outputText value="#{vacinacao.lote}" />
                                 </p:column>
 
-                                <p:column headerText="Veterinário">
-                                    <h:outputText value="#{vacinacao.funcionario.nome}" />
+                                <p:column headerText="Funcionário Aplicador">
+                                    <h:outputText value="#{vacinacao.funcionarioAplicador.nome}" />
                                 </p:column>
 
                                 <p:column headerText="Ações" style="width:150px">
@@ -139,7 +140,7 @@
                                                      update="tabela growl"
                                                      action="#{vacinacaoController.excluirVacinacao(vacinacao)}"
                                                      styleClass="ui-button-danger rounded-button"
-                                                     onclick="return confirm('Confirma a exclusão deste registro de vacinação?');" />
+                                                     onclick="return confirm(\'Confirma a exclusão deste registro de vacinação?\');" />
                                 </p:column>
                             </p:dataTable>
                         </div>
@@ -151,3 +152,4 @@
 </ui:composition>
 </h:body>
 </html>
+

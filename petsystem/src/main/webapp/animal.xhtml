@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -28,17 +29,23 @@
 
                                     <div class="p-field">
                                         <p:outputLabel for="especie" value="Espécie:" />
-                                        <p:selectOneMenu id="especie" value="#{animalController.animal.especie}" required="true"
+                                        <p:selectOneMenu id="especie" value="#{animalController.animal.raca.especie}" converter="#{especieConverter}" required="true"
                                                          requiredMessage="O campo Espécie é obrigatório">
                                             <f:selectItem itemLabel="Selecione" itemValue="" noSelectionOption="true" />
-                                            <f:selectItems value="#{animalController.especies}" var="especie"
-                                                           itemLabel="#{especie}" itemValue="#{especie}" />
+                                            <f:selectItems value="#{especieController.listaEspecies}" var="especie"
+                                                           itemLabel="#{especie.nome}" itemValue="#{especie}" />
+                                            <p:ajax event="change" update="raca" listener="#{animalController.carregarRacasPorEspecie}" />
                                         </p:selectOneMenu>
                                     </div>
 
                                     <div class="p-field">
                                         <p:outputLabel for="raca" value="Raça:" />
-                                        <p:inputText id="raca" value="#{animalController.animal.raca}" />
+                                        <p:selectOneMenu id="raca" value="#{animalController.animal.raca}" converter="#{racaConverter}" required="true"
+                                                         requiredMessage="O campo Raça é obrigatório">
+                                            <f:selectItem itemLabel="Selecione" itemValue="" noSelectionOption="true" />
+                                            <f:selectItems value="#{animalController.racas}" var="raca"
+                                                           itemLabel="#{raca.nome}" itemValue="#{raca}" />
+                                        </p:selectOneMenu>
                                     </div>
 
                                     <div class="p-field">
@@ -51,6 +58,11 @@
                                         <p:outputLabel for="peso" value="Peso (kg):" />
                                         <p:inputNumber id="peso" value="#{animalController.animal.peso}"
                                                        decimalPlaces="2" decimalSeparator="," thousandSeparator="." />
+                                    </div>
+
+                                    <div class="p-field">
+                                        <p:outputLabel for="fotoUrl" value="URL da Foto:" />
+                                        <p:inputText id="fotoUrl" value="#{animalController.animal.fotoUrl}" />
                                     </div>
 
                                     <div class="p-field">
@@ -104,11 +116,11 @@
                                         </p:column>
 
                                         <p:column headerText="Espécie">
-                                            <h:outputText value="#{animal.especie}" />
+                                            <h:outputText value="#{animal.raca.especie.nome}" />
                                         </p:column>
 
                                         <p:column headerText="Raça">
-                                            <h:outputText value="#{animal.raca}" />
+                                            <h:outputText value="#{animal.raca.nome}" />
                                         </p:column>
 
                                         <p:column headerText="Tutor">
@@ -119,7 +131,7 @@
                                             <p:commandButton icon="pi pi-pencil"
                                                              action="#{animalController.prepararEditarAnimal(animal)}"
                                                              update="form"
-                                                             oncomplete="PF('tabView').select(0);"
+                                                             oncomplete="PF(\'tabView\').select(0);"
                                                              process="@this"
                                                              styleClass="edit-button rounded-button ui-button-success" />
 
@@ -129,7 +141,7 @@
                                                              update="tabela growl"
                                                              process="@this"
                                                              styleClass="ui-button-danger rounded-button"
-                                                             onclick="return confirm('Confirma a exclusão deste animal?');" />
+                                                             onclick="return confirm(\'Confirma a exclusão deste animal?\');" />
 
                                         </p:column>
                                     </p:dataTable>
@@ -142,3 +154,4 @@
         </ui:composition>
     </h:body>
 </html>
+

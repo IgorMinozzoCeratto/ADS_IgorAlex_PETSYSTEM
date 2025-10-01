@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -20,22 +21,22 @@
                             <p:tab title="Agendamento de Consulta">
                                 <div class="ui-fluid">
                                     <div class="p-field">
-                                        <p:outputLabel for="animal" value="Animal:" />
-                                        <p:selectOneMenu id="animal" value="#{consultaController.consulta.animal}" required="true"
-                                                         requiredMessage="O campo Animal é obrigatório" converter="#{animalConverter}">
+                                        <p:outputLabel for="prontuario" value="Prontuário:" />
+                                        <p:selectOneMenu id="prontuario" value="#{consultaController.prontuarioSelecionado}" required="true"
+                                                         requiredMessage="O campo Prontuário é obrigatório" converter="#{prontuarioConverter}">
                                             <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
-                                            <f:selectItems value="#{consultaController.animais}" var="animal" 
-                                                           itemLabel="#{animal.nome} (#{animal.tutor.nome})" itemValue="#{animal}" />
+                                            <f:selectItems value="#{consultaController.prontuarios}" var="prontuario" 
+                                                           itemLabel="#{prontuario.animal.nome} (ID: #{prontuario.id})" itemValue="#{prontuario}" />
                                         </p:selectOneMenu>
                                     </div>
                                     
                                     <div class="p-field">
-                                        <p:outputLabel for="funcionario" value="Profissional:" />
-                                        <p:selectOneMenu id="funcionario" value="#{consultaController.consulta.funcionario}" required="true"
-                                                         requiredMessage="O campo Profissional é obrigatório" converter="#{funcionarioConverter}">
+                                        <p:outputLabel for="veterinario" value="Veterinário:" />
+                                        <p:selectOneMenu id="veterinario" value="#{consultaController.veterinarioSelecionado}" required="true"
+                                                         requiredMessage="O campo Veterinário é obrigatório" converter="#{funcionarioConverter}">
                                             <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
-                                            <f:selectItems value="#{consultaController.funcionarios}" var="funcionario" 
-                                                           itemLabel="#{funcionario.nome} (#{funcionario.tipo})" itemValue="#{funcionario}" />
+                                            <f:selectItems value="#{consultaController.veterinarios}" var="veterinario" 
+                                                           itemLabel="#{veterinario.nome}" itemValue="#{veterinario}" />
                                         </p:selectOneMenu>
                                     </div>
                                     
@@ -90,15 +91,15 @@
                                         </p:column>
                                         
                                         <p:column headerText="Animal">
-                                            <h:outputText value="#{consulta.animal.nome}" />
+                                            <h:outputText value="#{consulta.prontuario.animal.nome}" />
                                         </p:column>
                                         
                                         <p:column headerText="Tutor">
-                                            <h:outputText value="#{consulta.animal.tutor.nome}" />
+                                            <h:outputText value="#{consulta.prontuario.animal.tutor.nome}" />
                                         </p:column>
                                         
-                                        <p:column headerText="Profissional">
-                                            <h:outputText value="#{consulta.funcionario.nome}" />
+                                        <p:column headerText="Veterinário">
+                                            <h:outputText value="#{consulta.veterinario.nome}" />
                                         </p:column>
                                         
                                         <p:column headerText="Data">
@@ -141,3 +142,4 @@
         </ui:composition>
     </h:body>
 </html>
+

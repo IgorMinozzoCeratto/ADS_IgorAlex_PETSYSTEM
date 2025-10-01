@@ -1,18 +1,19 @@
+
 package br.upf.projetojfprimefaces.entity;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -32,30 +33,46 @@ public class ExameEntity implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
-    @Column(name = "tipo_exame")
+    @Column(name = "tipo_exame", nullable = false, length = 100)
     private String tipoExame;
 
     @Basic(optional = false)
     @NotNull
-    @Column(name = "data_exame")
+    @Column(name = "data_exame", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date dataExame;
 
-    @Size(max = 1000)
-    @Column(name = "resultado")
+    @Column(name = "resultado", columnDefinition = "TEXT")
     private String resultado;
 
-    @Size(max = 500)
-    @Column(name = "observacoes")
-    private String observacoes;
+    @Size(max = 255)
+    @Column(name = "documento_anexo_url", length = 255)
+    private String documentoAnexoUrl;
 
+    @NotNull(message = "O prontuário não pode ser nulo.")
+    @JoinColumn(name = "id_prontuario", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_animal", referencedColumnName = "id")
-    private AnimalEntity animal;
+    private ProntuarioEntity prontuario;
 
+    @NotNull(message = "O veterinário não pode ser nulo.")
+    @JoinColumn(name = "id_veterinario", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_funcionario", referencedColumnName = "id")
-    private FuncionarioEntity funcionario;
+    private FuncionarioEntity veterinario;
+
+    public ExameEntity() {
+    }
+
+    public ExameEntity(Integer id) {
+        this.id = id;
+    }
+
+    public ExameEntity(Integer id, String tipoExame, Date dataExame, ProntuarioEntity prontuario, FuncionarioEntity veterinario) {
+        this.id = id;
+        this.tipoExame = tipoExame;
+        this.dataExame = dataExame;
+        this.prontuario = prontuario;
+        this.veterinario = veterinario;
+    }
 
     public Integer getId() {
         return id;
@@ -89,49 +106,52 @@ public class ExameEntity implements Serializable {
         this.resultado = resultado;
     }
 
-    public String getObservacoes() {
-        return observacoes;
+    public String getDocumentoAnexoUrl() {
+        return documentoAnexoUrl;
     }
 
-    public void setObservacoes(String observacoes) {
-        this.observacoes = observacoes;
+    public void setDocumentoAnexoUrl(String documentoAnexoUrl) {
+        this.documentoAnexoUrl = documentoAnexoUrl;
     }
 
-    public AnimalEntity getAnimal() {
-        return animal;
+    public ProntuarioEntity getProntuario() {
+        return prontuario;
     }
 
-    public void setAnimal(AnimalEntity animal) {
-        this.animal = animal;
+    public void setProntuario(ProntuarioEntity prontuario) {
+        this.prontuario = prontuario;
     }
 
-    public FuncionarioEntity getFuncionario() {
-        return funcionario;
+    public FuncionarioEntity getVeterinario() {
+        return veterinario;
     }
 
-    public void setFuncionario(FuncionarioEntity funcionario) {
-        this.funcionario = funcionario;
+    public void setVeterinario(FuncionarioEntity veterinario) {
+        this.veterinario = veterinario;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + Objects.hashCode(this.id);
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
         return hash;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
+    public boolean equals(Object object) {
+        if (!(object instanceof ExameEntity)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        ExameEntity other = (ExameEntity) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
-        final ExameEntity other = (ExameEntity) obj;
-        return Objects.equals(this.id, other.id);
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ExameEntity[ id=" + id + " ]";
     }
 }
+

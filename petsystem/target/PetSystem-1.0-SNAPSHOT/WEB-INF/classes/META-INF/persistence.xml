@@ -1,14 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
-  <!-- Define Persistence Unit -->
-  <persistence-unit name="PetSystemPU" transaction-type="JTA">
-    <jta-data-source>jdbc/PetSystemDS</jta-data-source>
-    <properties>
-      <!-- Configurações do Hibernate -->
-      <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
-      <property name="hibernate.hbm2ddl.auto" value="update"/>
-      <property name="hibernate.show_sql" value="true"/>
-      <property name="hibernate.format_sql" value="true"/>
-    </properties>
-  </persistence-unit>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence
+                                 https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+
+    <persistence-unit name="PetSystemPU" transaction-type="JTA">
+        <jta-data-source>jdbc/PetSystemDS</jta-data-source>
+
+        <class>br.upf.projetojfprimefaces.entity.PerfilEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.FuncionarioEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.LogAcessoEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.TutorEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.EspecieEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.RacaEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.AnimalEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.ProntuarioEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.ConsultaEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.ExameEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.VacinacaoEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.ConvenioEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.FinanceiroMovimentacaoEntity</class>
+        <class>br.upf.projetojfprimefaces.entity.PagamentoEntity</class>
+
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+            <property name="hibernate.show_sql" value="true"/>
+            <property name="hibernate.format_sql" value="true"/>
+        </properties>
+    </persistence-unit>
+
 </persistence>

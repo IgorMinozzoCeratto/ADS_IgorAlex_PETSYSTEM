@@ -2,16 +2,13 @@ package br.upf.projetojfprimefaces.controller;
 
 import br.upf.projetojfprimefaces.entity.FuncionarioEntity;
 import br.upf.projetojfprimefaces.facade.FuncionarioFacade;
-import jakarta.annotation.PostConstruct;
-import jakarta.ejb.EJB;
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
-import jakarta.inject.Named;
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.inject.Named;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @Named
 @SessionScoped
@@ -64,17 +61,18 @@ public class LoginController implements Serializable {
     public boolean isLogado() {
         return funcionarioLogado != null;
     }
-    
-    public boolean isFuncionario1() {
-        return isLogado() && funcionarioLogado.getTipo() == FuncionarioEntity.TipoFuncionario.FUNCIONARIO_1;
+
+    // Verificações de perfil (usando a tabela perfil)
+    public boolean isAdministrador() {
+        return isLogado() && "ADMINISTRADOR".equalsIgnoreCase(funcionarioLogado.getPerfil().getNome());
     }
-    
-    public boolean isFuncionario2() {
-        return isLogado() && funcionarioLogado.getTipo() == FuncionarioEntity.TipoFuncionario.FUNCIONARIO_2;
+
+    public boolean isFuncionario() {
+        return isLogado() && "FUNCIONARIO".equalsIgnoreCase(funcionarioLogado.getPerfil().getNome());
     }
-    
+
     public boolean isVeterinario() {
-        return isLogado() && funcionarioLogado.getTipo() == FuncionarioEntity.TipoFuncionario.VETERINARIO;
+        return isLogado() && "VETERINARIO".equalsIgnoreCase(funcionarioLogado.getPerfil().getNome());
     }
 
     // Getters e Setters

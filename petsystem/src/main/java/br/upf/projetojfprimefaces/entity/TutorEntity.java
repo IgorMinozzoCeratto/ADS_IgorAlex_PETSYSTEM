@@ -1,14 +1,15 @@
+
 package br.upf.projetojfprimefaces.entity;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -27,34 +28,50 @@ public class TutorEntity implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
-    @Column(name = "nome")
+    @Column(name = "nome", nullable = false, length = 100)
     private String nome;
 
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 15)
-    @Column(name = "telefone")
+    @Size(min = 1, max = 20)
+    @Column(name = "telefone", nullable = false, length = 20)
     private String telefone;
 
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
     @Basic(optional = false)
     @NotNull
-    @Size(min = 1, max = 100)
-    @Column(name = "endereco")
+    @Size(min = 1, max = 255)
+    @Column(name = "endereco", nullable = false, length = 255)
     private String endereco;
 
-    @Size(max = 20)
-    @Column(name = "cpf")
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 20)
+    @Column(name = "cpf", nullable = false, unique = true, length = 20)
     private String cpf;
 
-    @Size(max = 100)
-    @Column(name = "senha")
-    private String senha;
+    // Removido senha e data_cadastro conforme SIMPLESMENTEOSQL.sql
+
+    public TutorEntity() {
+    }
+
+    public TutorEntity(Integer id) {
+        this.id = id;
+    }
+
+    public TutorEntity(Integer id, String nome, String telefone, String email, String endereco, String cpf) {
+        this.id = id;
+        this.nome = nome;
+        this.telefone = telefone;
+        this.email = email;
+        this.endereco = endereco;
+        this.cpf = cpf;
+    }
 
     public Integer getId() {
         return id;
@@ -104,14 +121,6 @@ public class TutorEntity implements Serializable {
         this.cpf = cpf;
     }
 
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
     @Override
     public int hashCode() {
         int hash = 7;
@@ -139,3 +148,4 @@ public class TutorEntity implements Serializable {
         return nome;
     }
 }
+

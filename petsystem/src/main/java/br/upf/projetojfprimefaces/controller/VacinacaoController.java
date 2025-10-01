@@ -1,17 +1,18 @@
+
 package br.upf.projetojfprimefaces.controller;
 
-import br.upf.projetojfprimefaces.entity.AnimalEntity;
 import br.upf.projetojfprimefaces.entity.FuncionarioEntity;
+import br.upf.projetojfprimefaces.entity.ProntuarioEntity;
 import br.upf.projetojfprimefaces.entity.VacinacaoEntity;
-import br.upf.projetojfprimefaces.facade.AnimalFacade;
 import br.upf.projetojfprimefaces.facade.FuncionarioFacade;
+import br.upf.projetojfprimefaces.facade.ProntuarioFacade;
 import br.upf.projetojfprimefaces.facade.VacinacaoFacade;
-import jakarta.annotation.PostConstruct;
-import jakarta.ejb.EJB;
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.faces.application.FacesMessage;
-import jakarta.faces.context.FacesContext;
-import jakarta.inject.Named;
+import javax.annotation.PostConstruct;
+import javax.ejb.EJB;
+import javax.enterprise.context.SessionScoped;
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import javax.inject.Named;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
@@ -27,72 +28,77 @@ public class VacinacaoController implements Serializable {
     private VacinacaoFacade vacinacaoFacade;
     
     @EJB
-    private AnimalFacade animalFacade;
+    private ProntuarioFacade prontuarioFacade;
     
     @EJB
     private FuncionarioFacade funcionarioFacade;
     
     private VacinacaoEntity vacinacao;
     private List<VacinacaoEntity> vacinacoes;
-    private List<AnimalEntity> animais;
-    private List<FuncionarioEntity> veterinarios;
-    private AnimalEntity animalSelecionado;
+    private List<ProntuarioEntity> prontuarios;
+    private List<FuncionarioEntity> funcionariosAplicadores;
+    private ProntuarioEntity prontuarioSelecionado;
+    private FuncionarioEntity funcionarioAplicadorSelecionado;
     private String filtroTipoVacina;
     
     @PostConstruct
     public void init() {
         vacinacao = new VacinacaoEntity();
         vacinacoes = new ArrayList<>();
-        animais = new ArrayList<>();
-        veterinarios = new ArrayList<>();
-        carregarAnimais();
-        carregarVeterinarios();
+        prontuarios = new ArrayList<>();
+        funcionariosAplicadores = new ArrayList<>();
+        carregarProntuarios();
+        carregarFuncionariosAplicadores();
+        carregarVacinacoes();
     }
     
-    public void carregarAnimais() {
+    public void carregarProntuarios() {
         try {
-            animais = animalFacade.buscarTodos();
+            prontuarios = prontuarioFacade.findAll();
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar animais: " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar prontuários: " + e.getMessage()));
         }
     }
     
-    public void carregarVeterinarios() {
+    public void carregarFuncionariosAplicadores() {
         try {
-            veterinarios = funcionarioFacade.buscarPorTipo(FuncionarioEntity.TipoFuncionario.VETERINARIO);
+            // Assumindo que todos os funcionários podem aplicar vacinas
+            funcionariosAplicadores = funcionarioFacade.findAll(); 
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar veterinários: " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar funcionários aplicadores: " + e.getMessage()));
         }
     }
     
     public void carregarVacinacoes() {
         try {
-            vacinacoes = vacinacaoFacade.buscarTodas();
+            vacinacoes = vacinacaoFacade.findAll();
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar vacinações: " + e.getMessage()));
         }
     }
     
-    public void filtrarVacinacoesPorAnimal() {
+    public void filtrarVacinacoesPorProntuario() {
         try {
-            if (animalSelecionado != null) {
-                vacinacoes = vacinacaoFacade.buscarPorAnimal(animalSelecionado);
+            if (prontuarioSelecionado != null) {
+                // vacinacoes = vacinacaoFacade.buscarPorProntuario(prontuarioSelecionado);
+                adicionarMensagemAviso("Filtro por prontuário ainda não implementado na fachada.");
             } else {
                 carregarVacinacoes();
             }
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao filtrar vacinações por animal: " + e.getMessage()));
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao filtrar vacinações por prontuário: " + e.getMessage()));
         }
     }
     
     public void filtrarVacinacoesPorTipo() {
         try {
             if (filtroTipoVacina != null && !filtroTipoVacina.isEmpty()) {
-                vacinacoes = vacinacaoFacade.buscarPorTipoVacina(filtroTipoVacina);
+                // vacinacoes = vacinacaoFacade.buscarPorTipoVacina(filtroTipoVacina);
+                adicionarMensagemAviso("Filtro por tipo de vacina ainda não implementado na fachada.");
             } else {
                 carregarVacinacoes();
             }
@@ -105,14 +111,29 @@ public class VacinacaoController implements Serializable {
     public void prepararNovaVacinacao() {
         vacinacao = new VacinacaoEntity();
         vacinacao.setDataAplicacao(new Date()); // Data atual como padrão
+        prontuarioSelecionado = null;
+        funcionarioAplicadorSelecionado = null;
     }
     
     public void prepararEditarVacinacao(VacinacaoEntity vacinacaoSelecionada) {
         vacinacao = vacinacaoSelecionada;
+        prontuarioSelecionado = vacinacaoSelecionada.getProntuario();
+        funcionarioAplicadorSelecionado = vacinacaoSelecionada.getFuncionarioAplicador();
     }
     
     public void salvarVacinacao() {
         try {
+            if (prontuarioSelecionado == null) {
+                adicionarMensagemAviso("Selecione um prontuário!");
+                return;
+            }
+            if (funcionarioAplicadorSelecionado == null) {
+                adicionarMensagemAviso("Selecione um funcionário aplicador!");
+                return;
+            }
+            vacinacao.setProntuario(prontuarioSelecionado);
+            vacinacao.setFuncionarioAplicador(funcionarioAplicadorSelecionado);
+            
             if (vacinacao.getId() == null) {
                 vacinacaoFacade.create(vacinacao);
                 FacesContext.getCurrentInstance().addMessage(null, 
@@ -123,11 +144,8 @@ public class VacinacaoController implements Serializable {
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Vacinação atualizada com sucesso!"));
             }
             
-            // Recarrega a lista de vacinações
             carregarVacinacoes();
-            
-            // Limpa o formulário
-            vacinacao = new VacinacaoEntity();
+            prepararNovaVacinacao();
             
         } catch (Exception e) {
             FacesContext.getCurrentInstance().addMessage(null, 
@@ -141,7 +159,6 @@ public class VacinacaoController implements Serializable {
             FacesContext.getCurrentInstance().addMessage(null, 
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Registro de vacinação excluído com sucesso!"));
             
-            // Recarrega a lista de vacinações
             carregarVacinacoes();
             
         } catch (Exception e) {
@@ -167,28 +184,36 @@ public class VacinacaoController implements Serializable {
         this.vacinacoes = vacinacoes;
     }
 
-    public List<AnimalEntity> getAnimais() {
-        return animais;
+    public List<ProntuarioEntity> getProntuarios() {
+        return prontuarios;
     }
 
-    public void setAnimais(List<AnimalEntity> animais) {
-        this.animais = animais;
+    public void setProntuarios(List<ProntuarioEntity> prontuarios) {
+        this.prontuarios = prontuarios;
     }
 
-    public List<FuncionarioEntity> getVeterinarios() {
-        return veterinarios;
+    public List<FuncionarioEntity> getFuncionariosAplicadores() {
+        return funcionariosAplicadores;
     }
 
-    public void setVeterinarios(List<FuncionarioEntity> veterinarios) {
-        this.veterinarios = veterinarios;
+    public void setFuncionariosAplicadores(List<FuncionarioEntity> funcionariosAplicadores) {
+        this.funcionariosAplicadores = funcionariosAplicadores;
     }
 
-    public AnimalEntity getAnimalSelecionado() {
-        return animalSelecionado;
+    public ProntuarioEntity getProntuarioSelecionado() {
+        return prontuarioSelecionado;
     }
 
-    public void setAnimalSelecionado(AnimalEntity animalSelecionado) {
-        this.animalSelecionado = animalSelecionado;
+    public void setProntuarioSelecionado(ProntuarioEntity prontuarioSelecionado) {
+        this.prontuarioSelecionado = prontuarioSelecionado;
+    }
+
+    public FuncionarioEntity getFuncionarioAplicadorSelecionado() {
+        return funcionarioAplicadorSelecionado;
+    }
+
+    public void setFuncionarioAplicadorSelecionado(FuncionarioEntity funcionarioAplicadorSelecionado) {
+        this.funcionarioAplicadorSelecionado = funcionarioAplicadorSelecionado;
     }
 
     public String getFiltroTipoVacina() {
@@ -198,4 +223,20 @@ public class VacinacaoController implements Serializable {
     public void setFiltroTipoVacina(String filtroTipoVacina) {
         this.filtroTipoVacina = filtroTipoVacina;
     }
+    
+    private void adicionarMensagemInfo(String mensagem) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", mensagem));
+    }
+
+    private void adicionarMensagemErro(String mensagem) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", mensagem));
+    }
+
+    private void adicionarMensagemAviso(String mensagem) {
+        FacesContext.getCurrentInstance().addMessage(null,
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Aviso", mensagem));
+    }
 }
+

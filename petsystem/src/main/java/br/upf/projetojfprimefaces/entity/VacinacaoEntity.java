@@ -1,18 +1,19 @@
+
 package br.upf.projetojfprimefaces.entity;
 
-import jakarta.persistence.Basic;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Objects;
@@ -32,30 +33,43 @@ public class VacinacaoEntity implements Serializable {
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
-    @Column(name = "tipo_vacina")
+    @Column(name = "tipo_vacina", nullable = false, length = 100)
     private String tipoVacina;
 
     @Basic(optional = false)
     @NotNull
-    @Column(name = "data_aplicacao")
+    @Column(name = "data_aplicacao", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date dataAplicacao;
 
     @Size(max = 50)
-    @Column(name = "lote")
+    @Column(name = "lote", length = 50)
     private String lote;
 
-    @Size(max = 500)
-    @Column(name = "observacoes")
-    private String observacoes;
-
+    @NotNull(message = "O prontuário não pode ser nulo.")
+    @JoinColumn(name = "id_prontuario", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_animal", referencedColumnName = "id")
-    private AnimalEntity animal;
+    private ProntuarioEntity prontuario;
 
+    @NotNull(message = "O funcionário aplicador não pode ser nulo.")
+    @JoinColumn(name = "id_funcionario_aplicador", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false)
-    @JoinColumn(name = "id_funcionario", referencedColumnName = "id")
-    private FuncionarioEntity funcionario;
+    private FuncionarioEntity funcionarioAplicador;
+
+    public VacinacaoEntity() {
+    }
+
+    public VacinacaoEntity(Integer id) {
+        this.id = id;
+    }
+
+    public VacinacaoEntity(Integer id, String tipoVacina, Date dataAplicacao, ProntuarioEntity prontuario, FuncionarioEntity funcionarioAplicador) {
+        this.id = id;
+        this.tipoVacina = tipoVacina;
+        this.dataAplicacao = dataAplicacao;
+        this.prontuario = prontuario;
+        this.funcionarioAplicador = funcionarioAplicador;
+    }
 
     public Integer getId() {
         return id;
@@ -89,49 +103,44 @@ public class VacinacaoEntity implements Serializable {
         this.lote = lote;
     }
 
-    public String getObservacoes() {
-        return observacoes;
+    public ProntuarioEntity getProntuario() {
+        return prontuario;
     }
 
-    public void setObservacoes(String observacoes) {
-        this.observacoes = observacoes;
+    public void setProntuario(ProntuarioEntity prontuario) {
+        this.prontuario = prontuario;
     }
 
-    public AnimalEntity getAnimal() {
-        return animal;
+    public FuncionarioEntity getFuncionarioAplicador() {
+        return funcionarioAplicador;
     }
 
-    public void setAnimal(AnimalEntity animal) {
-        this.animal = animal;
-    }
-
-    public FuncionarioEntity getFuncionario() {
-        return funcionario;
-    }
-
-    public void setFuncionario(FuncionarioEntity funcionario) {
-        this.funcionario = funcionario;
+    public void setFuncionarioAplicador(FuncionarioEntity funcionarioAplicador) {
+        this.funcionarioAplicador = funcionarioAplicador;
     }
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + Objects.hashCode(this.id);
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
         return hash;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
+    public boolean equals(Object object) {
+        if (!(object instanceof VacinacaoEntity)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        VacinacaoEntity other = (VacinacaoEntity) object;
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
-        final VacinacaoEntity other = (VacinacaoEntity) obj;
-        return Objects.equals(this.id, other.id);
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "VacinacaoEntity[ id=" + id + " ]";
     }
 }
+
