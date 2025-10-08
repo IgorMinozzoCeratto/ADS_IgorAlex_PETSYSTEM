@@ -1,130 +1,162 @@
--- Script SQL para PostgreSQL - PetSystem
--- Criação do banco de dados e tabelas para o sistema de clínica veterinária
+CREATE TABLE perfil (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(50) NOT NULL UNIQUE,
+    descricao VARCHAR(255)
+);
 
--- Criação do banco de dados
--- CREATE DATABASE petsystem_db;
-
--- Conectar ao banco de dados
--- \c petsystem_db
-
--- Tabela de Funcionários (inclui veterinários)
 CREATE TABLE funcionario (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     login VARCHAR(50) NOT NULL UNIQUE,
-    senha VARCHAR(100) NOT NULL,
-    email VARCHAR(100),
-    telefone VARCHAR(20),
-    tipo VARCHAR(20) NOT NULL, -- FUNCIONARIO_1, FUNCIONARIO_2, VETERINARIO
-    crmv VARCHAR(20), -- Número de registro para veterinários
-    data_contratacao DATE,
-    ativo BOOLEAN DEFAULT TRUE
+    senha VARCHAR(255) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    data_contratacao DATE NOT NULL,
+    registro_profissional VARCHAR(100),
+    ativo BOOLEAN DEFAULT TRUE,
+    id_perfil INTEGER NOT NULL,
+    FOREIGN KEY (id_perfil) REFERENCES perfil(id) ON DELETE RESTRICT
 );
 
--- Tabela de Tutores (donos dos animais)
+CREATE TABLE log_acesso (
+    id SERIAL PRIMARY KEY,
+    login_tentativa VARCHAR(50) NOT NULL,
+    data_hora TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    sucesso BOOLEAN NOT NULL,
+    ip_acesso VARCHAR(45)
+);
+
 CREATE TABLE tutor (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    cpf VARCHAR(14),
-    email VARCHAR(100),
     telefone VARCHAR(20) NOT NULL,
-    endereco VARCHAR(200),
-    senha VARCHAR(100),
-    data_cadastro DATE DEFAULT CURRENT_DATE
+    email VARCHAR(100) NOT NULL UNIQUE,
+    endereco VARCHAR(255) NOT NULL,
+    cpf VARCHAR(20) UNIQUE NOT NULL
 );
 
--- Tabela de Animais
+CREATE TABLE especie (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE raca (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    id_especie INTEGER NOT NULL,
+    FOREIGN KEY (id_especie) REFERENCES especie(id) ON DELETE RESTRICT,
+    UNIQUE (nome, id_especie)
+);
+
 CREATE TABLE animal (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
-    especie VARCHAR(50) NOT NULL, -- Enum: CACHORRO, GATO, AVE, ROEDOR, REPTIL, OUTRO
-    raca VARCHAR(100),
     data_nascimento DATE,
-    peso NUMERIC(6,2),
+    peso NUMERIC(6, 2),
     observacoes TEXT,
+    foto_url VARCHAR(255),
     id_tutor INTEGER NOT NULL,
-    FOREIGN KEY (id_tutor) REFERENCES tutor(id)
+    id_raca INTEGER NOT NULL,
+    FOREIGN KEY (id_tutor) REFERENCES tutor(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_raca) REFERENCES raca(id) ON DELETE RESTRICT
 );
 
--- Tabela de Consultas
+CREATE TABLE prontuario (
+    id SERIAL PRIMARY KEY,
+    id_animal INTEGER NOT NULL UNIQUE,
+    data_criacao DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (id_animal) REFERENCES animal(id) ON DELETE CASCADE
+);
+
 CREATE TABLE consulta (
     id SERIAL PRIMARY KEY,
-    data_consulta DATE NOT NULL,
-    hora_consulta TIME NOT NULL,
-    observacoes TEXT,
+    data_agendamento TIMESTAMP WITH TIME ZONE NOT NULL,
+    observacoes_clinicas TEXT,
     realizada BOOLEAN DEFAULT FALSE,
-    diagnostico TEXT,
-    tratamento TEXT,
-    id_animal INTEGER NOT NULL,
-    id_funcionario INTEGER NOT NULL,
-    FOREIGN KEY (id_animal) REFERENCES animal(id),
-    FOREIGN KEY (id_funcionario) REFERENCES funcionario(id)
+    id_prontuario INTEGER NOT NULL,
+    id_veterinario INTEGER NOT NULL,
+    FOREIGN KEY (id_prontuario) REFERENCES prontuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_veterinario) REFERENCES funcionario(id) ON DELETE RESTRICT
 );
 
--- Tabela de Vacinação
-CREATE TABLE vacinacao (
-    id SERIAL PRIMARY KEY,
-    tipo_vacina VARCHAR(100) NOT NULL,
-    data_aplicacao DATE NOT NULL,
-    lote VARCHAR(50),
-    observacoes TEXT,
-    id_animal INTEGER NOT NULL,
-    id_funcionario INTEGER NOT NULL,
-    FOREIGN KEY (id_animal) REFERENCES animal(id),
-    FOREIGN KEY (id_funcionario) REFERENCES funcionario(id)
-);
-
--- Tabela de Exames
 CREATE TABLE exame (
     id SERIAL PRIMARY KEY,
     tipo_exame VARCHAR(100) NOT NULL,
     data_exame DATE NOT NULL,
     resultado TEXT,
-    observacoes TEXT,
-    id_animal INTEGER NOT NULL,
-    id_funcionario INTEGER NOT NULL,
-    FOREIGN KEY (id_animal) REFERENCES animal(id),
-    FOREIGN KEY (id_funcionario) REFERENCES funcionario(id)
+    documento_anexo_url VARCHAR(255),
+    id_prontuario INTEGER NOT NULL,
+    id_veterinario INTEGER NOT NULL,
+    FOREIGN KEY (id_prontuario) REFERENCES prontuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_veterinario) REFERENCES funcionario(id) ON DELETE RESTRICT
 );
 
--- Inserção de dados iniciais para teste
+CREATE TABLE vacinacao (
+    id SERIAL PRIMARY KEY,
+    tipo_vacina VARCHAR(100) NOT NULL,
+    data_aplicacao DATE NOT NULL,
+    lote VARCHAR(50),
+    id_prontuario INTEGER NOT NULL,
+    id_funcionario_aplicador INTEGER NOT NULL,
+    FOREIGN KEY (id_prontuario) REFERENCES prontuario(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_funcionario_aplicador) REFERENCES funcionario(id) ON DELETE RESTRICT
+);
 
--- Funcionários
-INSERT INTO funcionario (nome, login, senha, email, telefone, tipo, crmv, data_contratacao)
-VALUES 
-('João Silva', 'joao', '123456', 'joao@petsystem.com', '(54) 99999-1111', 'FUNCIONARIO_1', NULL, '2023-01-15'),
-('Maria Oliveira', 'maria', '123456', 'maria@petsystem.com', '(54) 99999-2222', 'FUNCIONARIO_2', NULL, '2023-02-20'),
-('Dr. Carlos Santos', 'carlos', '123456', 'carlos@petsystem.com', '(54) 99999-3333', 'VETERINARIO', 'CRMV-12345', '2023-01-10');
+CREATE TABLE convenio (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL UNIQUE,
+    descricao TEXT,
+    ativo BOOLEAN DEFAULT TRUE
+);
 
--- Tutores
-INSERT INTO tutor (nome, cpf, email, telefone, endereco, senha)
-VALUES 
-('Ana Pereira', '123.456.789-00', 'ana@email.com', '(54) 98888-1111', 'Rua das Flores, 123', '123456'),
-('Pedro Souza', '987.654.321-00', 'pedro@email.com', '(54) 98888-2222', 'Av. Principal, 456', '123456');
+CREATE TABLE financeiro_movimentacao (
+    id SERIAL PRIMARY KEY,
+    descricao VARCHAR(255) NOT NULL,
+    valor NUMERIC(10, 2) NOT NULL,
+    tipo CHAR(1) NOT NULL CHECK (tipo IN ('R', 'D')),
+    data_movimentacao TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    id_funcionario_responsavel INTEGER NOT NULL,
+    FOREIGN KEY (id_funcionario_responsavel) REFERENCES funcionario(id) ON DELETE RESTRICT
+);
 
--- Animais
-INSERT INTO animal (nome, especie, raca, data_nascimento, peso, observacoes, id_tutor)
-VALUES 
-('Rex', 'CACHORRO', 'Labrador', '2020-05-10', 25.5, 'Alérgico a alguns medicamentos', 1),
-('Mia', 'GATO', 'Siamês', '2021-03-15', 4.2, 'Muito dócil', 1),
-('Thor', 'CACHORRO', 'Golden Retriever', '2019-11-20', 30.0, 'Tem problema na pata traseira direita', 2);
+CREATE TABLE pagamento (
+    id SERIAL PRIMARY KEY,
+    valor_pago NUMERIC(10, 2) NOT NULL,
+    data_pagamento DATE NOT NULL,
+    forma_pagamento VARCHAR(50) NOT NULL,
+    id_tutor INTEGER NOT NULL,
+    id_movimentacao INTEGER NOT NULL UNIQUE,
+    id_consulta INTEGER,
+    FOREIGN KEY (id_tutor) REFERENCES tutor(id) ON DELETE RESTRICT,
+    FOREIGN KEY (id_movimentacao) REFERENCES financeiro_movimentacao(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_consulta) REFERENCES consulta(id) ON DELETE SET NULL
+);
 
--- Consultas
-INSERT INTO consulta (data_consulta, hora_consulta, observacoes, realizada, diagnostico, tratamento, id_animal, id_funcionario)
-VALUES 
-('2023-06-10', '14:30:00', 'Consulta de rotina', TRUE, 'Animal saudável', 'Manter alimentação balanceada', 1, 3),
-('2023-06-15', '10:00:00', 'Animal com tosse', TRUE, 'Infecção respiratória leve', 'Antibiótico por 7 dias', 2, 3),
-('2023-07-05', '16:00:00', 'Verificar pata machucada', FALSE, NULL, NULL, 3, 3);
+INSERT INTO perfil (nome, descricao) VALUES
+('ADMINISTRADOR', 'Acesso total ao sistema, incluindo financeiro e gerenciamento de usuários.'),
+('FUNCIONARIO', 'Acesso a agendamentos, cadastros de tutores e animais.'),
+('VETERINARIO', 'Acesso a prontuários, consultas, exames e vacinas.');
 
--- Vacinação
-INSERT INTO vacinacao (tipo_vacina, data_aplicacao, lote, observacoes, id_animal, id_funcionario)
-VALUES 
-('V10', '2023-05-20', 'L123456', 'Vacina anual', 1, 3),
-('Antirrábica', '2023-05-20', 'L789012', 'Vacina anual', 1, 3),
-('V4', '2023-04-15', 'L456789', 'Primeira dose', 2, 3);
+INSERT INTO funcionario (nome, login, senha, email, data_contratacao, registro_profissional, id_perfil) VALUES
+('Admin User', 'admin', '123456', 'admin@petsystem.com', '2023-01-01', NULL, (SELECT id FROM perfil WHERE nome = 'ADMINISTRADOR')),
+('Laura Vitoria', 'laura', '123456', 'joao@petsystem.com', '2023-01-15', NULL, (SELECT id FROM perfil WHERE nome = 'FUNCIONARIO')),
+('Dr. Carlos Santos', 'carlos', '123456', 'carlos@petsystem.com', '2023-01-10', 'CRMV-RS 12345', (SELECT id FROM perfil WHERE nome = 'VETERINARIO'));
 
--- Exames
-INSERT INTO exame (tipo_exame, data_exame, resultado, observacoes, id_animal, id_funcionario)
-VALUES 
-('Hemograma Completo', '2023-06-10', 'Resultados dentro da normalidade', 'Exame de rotina', 1, 3),
-('Raio-X', '2023-06-15', 'Pulmões sem alterações significativas', 'Realizado devido à tosse', 2, 3);
+INSERT INTO especie (nome) VALUES ('Cachorro'), ('Gato'), ('Ave');
+
+INSERT INTO raca (nome, id_especie) VALUES
+('Labrador', (SELECT id FROM especie WHERE nome = 'Cachorro')),
+('Poodle', (SELECT id FROM especie WHERE nome = 'Cachorro')),
+('Siamês', (SELECT id FROM especie WHERE nome = 'Gato')),
+('Persa', (SELECT id FROM especie WHERE nome = 'Gato')),
+('Papagaio', (SELECT id FROM especie WHERE nome = 'Ave'));
+
+CREATE INDEX idx_funcionario_perfil ON funcionario (id_perfil);
+CREATE INDEX idx_animal_tutor ON animal (id_tutor);
+CREATE INDEX idx_animal_raca ON animal (id_raca);
+CREATE INDEX idx_raca_especie ON raca (id_especie);
+CREATE INDEX idx_prontuario_animal ON prontuario (id_animal);
+CREATE INDEX idx_consulta_prontuario ON consulta (id_prontuario);
+CREATE INDEX idx_consulta_veterinario ON consulta (id_veterinario);
+CREATE INDEX idx_exame_prontuario ON exame (id_prontuario);
+CREATE INDEX idx_vacinacao_prontuario ON vacinacao (id_prontuario);
+CREATE INDEX idx_pagamento_tutor ON pagamento (id_tutor);

@@ -1,9 +1,9 @@
 package br.upf.projetojfprimefaces.controller;
 
 import br.upf.projetojfprimefaces.enumeration.UFEnum;
-import javax.inject.Named;
-import javax.enterprise.context.SessionScoped;
-import javax.faces.model.SelectItem;
+import jakarta.inject.Named;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.faces.model.SelectItem;
 import java.io.Serializable;
 
 @Named(value = "ufController")

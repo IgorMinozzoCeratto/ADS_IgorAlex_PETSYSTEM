@@ -3,9 +3,9 @@ package br.upf.projetojfprimefaces.controller;
 
 import br.upf.projetojfprimefaces.entity.PerfilEntity;
 import br.upf.projetojfprimefaces.facade.PerfilFacade;
-import javax.ejb.EJB;
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Named;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.List;
 

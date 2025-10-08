@@ -4,9 +4,9 @@ import br.upf.projetojfprimefaces.entity.EspecieEntity;
 import br.upf.projetojfprimefaces.entity.RacaEntity;
 import br.upf.projetojfprimefaces.facade.EspecieFacade;
 import br.upf.projetojfprimefaces.facade.RacaFacade;
-import javax.ejb.EJB;
-import javax.enterprise.context.SessionScoped;
-import javax.inject.Named;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.List;
 

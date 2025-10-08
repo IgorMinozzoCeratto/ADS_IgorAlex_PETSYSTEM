@@ -1,19 +1,18 @@
-
 package br.upf.projetojfprimefaces.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
+import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -33,12 +32,12 @@ public class ProntuarioEntity implements Serializable {
 
     @Column(name = "data_criacao", nullable = false)
     @Temporal(TemporalType.DATE)
-    private LocalDate dataCriacao = LocalDate.now();
+    private Date dataCriacao = new Date();
 
     public ProntuarioEntity() {
     }
 
-    public ProntuarioEntity(Integer id, AnimalEntity animal, LocalDate dataCriacao) {
+    public ProntuarioEntity(Integer id, AnimalEntity animal, Date dataCriacao) {
         this.id = id;
         this.animal = animal;
         this.dataCriacao = dataCriacao;
@@ -60,11 +59,11 @@ public class ProntuarioEntity implements Serializable {
         this.animal = animal;
     }
 
-    public LocalDate getDataCriacao() {
+    public Date getDataCriacao() {
         return dataCriacao;
     }
 
-    public void setDataCriacao(LocalDate dataCriacao) {
+    public void setDataCriacao(Date dataCriacao) {
         this.dataCriacao = dataCriacao;
     }
 
@@ -86,4 +85,3 @@ public class ProntuarioEntity implements Serializable {
         return "ProntuarioEntity{" + "id=" + id + ", animal=" + animal.getNome() + ", dataCriacao=" + dataCriacao + "}";
     }
 }
-

@@ -2,12 +2,12 @@ package br.upf.projetojfprimefaces.converter;
 
 import br.upf.projetojfprimefaces.entity.TutorEntity;
 import br.upf.projetojfprimefaces.facade.TutorFacade;
-import javax.faces.component.UIComponent;
-import javax.faces.context.FacesContext;
-import javax.faces.convert.Converter;
-import javax.faces.convert.FacesConverter;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.faces.component.UIComponent;
+import jakarta.faces.context.FacesContext;
+import jakarta.faces.convert.Converter;
+import jakarta.faces.convert.FacesConverter;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named("tutorConverter")
 @FacesConverter(value = "tutorConverter", managed = true)
