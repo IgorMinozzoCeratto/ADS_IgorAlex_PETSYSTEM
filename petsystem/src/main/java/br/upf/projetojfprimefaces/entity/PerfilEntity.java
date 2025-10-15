@@ -1,4 +1,3 @@
-
 package br.upf.projetojfprimefaces.entity;
 
 import jakarta.persistence.Basic;
@@ -21,6 +20,13 @@ public class PerfilEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    // --- Perfis fixos do sistema ---
+    public static final int ADMINISTRADOR_ID = 1;
+    public static final int VETERINARIO_ID = 2;
+    public static final int RECEPCIONISTA_ID = 3;
+    public static final int CLIENTE_ID = 4;
+
+    // --- Atributos ---
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
@@ -37,10 +43,19 @@ public class PerfilEntity implements Serializable {
     @Column(name = "descricao", length = 255)
     private String descricao;
 
-    @OneToMany(mappedBy = "perfil") // relacionamento com FuncionarioEntity
+    @OneToMany(mappedBy = "perfil")
     private List<FuncionarioEntity> funcionarios;
 
-    // Getters e Setters
+    // --- Construtores ---
+    public PerfilEntity() {}
+
+    public PerfilEntity(Integer id, String nome, String descricao) {
+        this.id = id;
+        this.nome = nome;
+        this.descricao = descricao;
+    }
+
+    // --- Getters e Setters ---
     public Integer getId() {
         return id;
     }
@@ -73,7 +88,24 @@ public class PerfilEntity implements Serializable {
         this.funcionarios = funcionarios;
     }
 
-    // hashCode, equals e toString
+    // --- Métodos utilitários ---
+    public static PerfilEntity criarAdministrador() {
+        return new PerfilEntity(ADMINISTRADOR_ID, "Administrador", "Acesso total ao sistema.");
+    }
+
+    public static PerfilEntity criarVeterinario() {
+        return new PerfilEntity(VETERINARIO_ID, "Veterinário", "Responsável por consultas e exames.");
+    }
+
+    public static PerfilEntity criarRecepcionista() {
+        return new PerfilEntity(RECEPCIONISTA_ID, "Recepcionista", "Responsável por agendamentos e cadastros.");
+    }
+
+    public static PerfilEntity criarCliente() {
+        return new PerfilEntity(CLIENTE_ID, "Cliente", "Acesso restrito a informações dos próprios animais.");
+    }
+
+    // --- hashCode, equals e toString ---
     @Override
     public int hashCode() {
         return Objects.hash(id);
@@ -92,4 +124,3 @@ public class PerfilEntity implements Serializable {
         return nome;
     }
 }
-

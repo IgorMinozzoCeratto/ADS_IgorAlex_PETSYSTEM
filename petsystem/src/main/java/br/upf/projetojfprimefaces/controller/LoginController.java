@@ -1,6 +1,7 @@
 package br.upf.projetojfprimefaces.controller;
 
 import br.upf.projetojfprimefaces.entity.FuncionarioEntity;
+import br.upf.projetojfprimefaces.entity.PerfilEntity;
 import br.upf.projetojfprimefaces.facade.FuncionarioFacade;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
@@ -15,67 +16,88 @@ import java.io.Serializable;
 public class LoginController implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
+
     @EJB
     private FuncionarioFacade funcionarioFacade;
-    
+
     private String login;
     private String senha;
     private FuncionarioEntity funcionarioLogado;
-    
+
     @PostConstruct
     public void init() {
-        // Inicialização, se necessário
+        // Pode ser usado para carregar dados iniciais, se necessário
     }
-    
+
+    // ==========================
+    // ===== Autenticação =======
+    // ==========================
     public String autenticar() {
         try {
             funcionarioLogado = funcionarioFacade.buscarPorLogin(login, senha);
-            
+
             if (funcionarioLogado != null) {
-                // Autenticação bem-sucedida
-                FacesContext.getCurrentInstance().addMessage(null, 
+                FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Login realizado com sucesso!"));
-                
-                // Redireciona para a página principal
+
+                // Redireciona para a tela principal (ajuste se necessário)
                 return "/animal.xhtml?faces-redirect=true";
             } else {
-                // Autenticação falhou
-                FacesContext.getCurrentInstance().addMessage(null, 
+                FacesContext.getCurrentInstance().addMessage(null,
                         new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Login ou senha inválidos!"));
                 return null;
             }
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao realizar login: " + e.getMessage()));
+            FacesContext.getCurrentInstance().addMessage(null,
+                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Falha ao realizar login."));
+            e.printStackTrace();
             return null;
         }
     }
-    
+
     public String logout() {
-        // Invalida a sessão
         FacesContext.getCurrentInstance().getExternalContext().invalidateSession();
         return "/login.xhtml?faces-redirect=true";
     }
-    
+
+    // ==========================
+    // ===== Situação ===========
+    // ==========================
     public boolean isLogado() {
         return funcionarioLogado != null;
     }
 
-    // Verificações de perfil (usando a tabela perfil)
-    public boolean isAdministrador() {
-        return isLogado() && "ADMINISTRADOR".equalsIgnoreCase(funcionarioLogado.getPerfil().getNome());
-    }
+    // ==========================
+    // ===== Perfis =============
+    // ==========================
 
-    public boolean isFuncionario() {
-        return isLogado() && "FUNCIONARIO".equalsIgnoreCase(funcionarioLogado.getPerfil().getNome());
+    public boolean isAdministrador() {
+        return isLogado()
+                && funcionarioLogado.getPerfil() != null
+                && PerfilEntity.ADMINISTRADOR_ID == funcionarioLogado.getPerfil().getId();
     }
 
     public boolean isVeterinario() {
-        return isLogado() && "VETERINARIO".equalsIgnoreCase(funcionarioLogado.getPerfil().getNome());
+        return isLogado()
+                && funcionarioLogado.getPerfil() != null
+                && PerfilEntity.VETERINARIO_ID == funcionarioLogado.getPerfil().getId();
     }
 
-    // Getters e Setters
+    public boolean isRecepcionista() {
+        return isLogado()
+                && funcionarioLogado.getPerfil() != null
+                && PerfilEntity.RECEPCIONISTA_ID == funcionarioLogado.getPerfil().getId();
+    }
+
+    public boolean isCliente() {
+        return isLogado()
+                && funcionarioLogado.getPerfil() != null
+                && PerfilEntity.CLIENTE_ID == funcionarioLogado.getPerfil().getId();
+    }
+
+    // ==========================
+    // ===== Getters/Setters ====
+    // ==========================
     public String getLogin() {
         return login;
     }

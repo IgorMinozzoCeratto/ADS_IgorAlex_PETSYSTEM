@@ -9,10 +9,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -24,43 +26,54 @@ public class FuncionarioEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
+    @Column(name = "id")
     private Integer id;
 
+    @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
-    @Column(nullable = false, length = 100)
+    @Column(name = "nome", nullable = false, length = 100)
     private String nome;
 
+    @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 50)
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "login", nullable = false, unique = true, length = 50)
     private String login;
 
+    @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 255)
-    @Column(nullable = false, length = 255)
+    @Column(name = "senha", nullable = false, length = 255)
     private String senha;
 
+    @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
+    @Basic(optional = false)
     @NotNull
     @Column(name = "data_contratacao", nullable = false)
-    private LocalDate dataContratacao;
+    @Temporal(TemporalType.DATE)
+    private Date dataContratacao;
 
-    @Column(nullable = false)
+    @Size(max = 100)
+    @Column(name = "registro_profissional", length = 100)
+    private String registroProfissional;
+
+    @Column(name = "ativo")
     private Boolean ativo = true;
 
     @NotNull
-    @ManyToOne(optional = false)
     @JoinColumn(name = "id_perfil", referencedColumnName = "id", nullable = false)
+    @ManyToOne(optional = false)
     private PerfilEntity perfil;
 
-    // ----------------------------------------------------------
+    // ============================
     // Construtores
-    // ----------------------------------------------------------
+    // ============================
 
     public FuncionarioEntity() {
     }
@@ -69,8 +82,7 @@ public class FuncionarioEntity implements Serializable {
         this.id = id;
     }
 
-    public FuncionarioEntity(Integer id, String nome, String login, String senha, String email,
-                             LocalDate dataContratacao, PerfilEntity perfil) {
+    public FuncionarioEntity(Integer id, String nome, String login, String senha, String email, Date dataContratacao, PerfilEntity perfil) {
         this.id = id;
         this.nome = nome;
         this.login = login;
@@ -80,53 +92,104 @@ public class FuncionarioEntity implements Serializable {
         this.perfil = perfil;
     }
 
-    // ----------------------------------------------------------
+    // ============================
     // Getters e Setters
-    // ----------------------------------------------------------
+    // ============================
 
-    public Integer getId() { return id; }
-    public void setId(Integer id) { this.id = id; }
+    public Integer getId() {
+        return id;
+    }
 
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
+    public void setId(Integer id) {
+        this.id = id;
+    }
 
-    public String getLogin() { return login; }
-    public void setLogin(String login) { this.login = login; }
+    public String getNome() {
+        return nome;
+    }
 
-    public String getSenha() { return senha; }
-    public void setSenha(String senha) { this.senha = senha; }
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public String getLogin() {
+        return login;
+    }
 
-    public LocalDate getDataContratacao() { return dataContratacao; }
-    public void setDataContratacao(LocalDate dataContratacao) { this.dataContratacao = dataContratacao; }
+    public void setLogin(String login) {
+        this.login = login;
+    }
 
-    public Boolean getAtivo() { return ativo; }
-    public void setAtivo(Boolean ativo) { this.ativo = ativo; }
+    public String getSenha() {
+        return senha;
+    }
 
-    public PerfilEntity getPerfil() { return perfil; }
-    public void setPerfil(PerfilEntity perfil) { this.perfil = perfil; }
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
 
-    // ----------------------------------------------------------
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Date getDataContratacao() {
+        return dataContratacao;
+    }
+
+    public void setDataContratacao(Date dataContratacao) {
+        this.dataContratacao = dataContratacao;
+    }
+
+    public String getRegistroProfissional() {
+        return registroProfissional;
+    }
+
+    public void setRegistroProfissional(String registroProfissional) {
+        this.registroProfissional = registroProfissional;
+    }
+
+    public Boolean getAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(Boolean ativo) {
+        this.ativo = ativo;
+    }
+
+    public PerfilEntity getPerfil() {
+        return perfil;
+    }
+
+    public void setPerfil(PerfilEntity perfil) {
+        this.perfil = perfil;
+    }
+
+    // ============================
     // Métodos utilitários
-    // ----------------------------------------------------------
+    // ============================
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        int hash = 0;
+        hash += (id != null ? id.hashCode() : 0);
+        return hash;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
-        FuncionarioEntity other = (FuncionarioEntity) obj;
+    public boolean equals(Object object) {
+        if (!(object instanceof FuncionarioEntity)) {
+            return false;
+        }
+        FuncionarioEntity other = (FuncionarioEntity) object;
         return Objects.equals(this.id, other.id);
     }
 
     @Override
     public String toString() {
-        return nome + " (" + login + ")";
+        return "br.upf.projetojfprimefaces.entity.FuncionarioEntity[ id=" + id + " ]";
     }
 }
