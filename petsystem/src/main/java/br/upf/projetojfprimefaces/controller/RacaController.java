@@ -79,5 +79,8 @@ public class RacaController implements Serializable {
         this.listaEspecies = listaEspecies;
     }
 
+    // 🔹 Getter adicional para compatibilidade com o animal.xhtml
+    public List<EspecieEntity> getEspecies() {
+        return getListaEspecies();
+    }
 }
-

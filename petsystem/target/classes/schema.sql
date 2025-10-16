@@ -138,7 +138,7 @@ INSERT INTO perfil (nome, descricao) VALUES
 
 INSERT INTO funcionario (nome, login, senha, email, data_contratacao, registro_profissional, id_perfil) VALUES
 ('Admin User', 'admin', '123456', 'admin@petsystem.com', '2023-01-01', NULL, (SELECT id FROM perfil WHERE nome = 'ADMINISTRADOR')),
-('Laura Vitoria', 'laura', '123456', 'joao@petsystem.com', '2023-01-15', NULL, (SELECT id FROM perfil WHERE nome = 'FUNCIONARIO')),
+('Laura Vitoria', 'laura', '123456', 'laura@petsystem.com', '2023-01-15', NULL, (SELECT id FROM perfil WHERE nome = 'FUNCIONARIO')),
 ('Dr. Carlos Santos', 'carlos', '123456', 'carlos@petsystem.com', '2023-01-10', 'CRMV-RS 12345', (SELECT id FROM perfil WHERE nome = 'VETERINARIO'));
 
 INSERT INTO especie (nome) VALUES ('Cachorro'), ('Gato'), ('Ave');
