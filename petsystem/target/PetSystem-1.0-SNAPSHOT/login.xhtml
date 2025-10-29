@@ -1,40 +1,82 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
 
     <h:head>
-        <title>Login - PetSystem</title>
+        <f:facet name="first">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+            <meta name="apple-mobile-web-app-capable" content="yes" />
+        </f:facet>
+        <title>PrimeFaces - Manhattan</title>
+
+        <!-- Manhattan styles -->
+        <h:outputStylesheet name="css/primeicons.css" library="manhattan-layout" />
+        <h:outputStylesheet name="css/primeflex.min.css" library="manhattan-layout" />
+        <h:outputStylesheet name="css/layout-cyan-deeporange.css" library="manhattan-layout" />
     </h:head>
 
-    <h:body>
-        <div class="card">
-            <h:form id="form">
-                <p:panel header="Login - PetSystem">
-                    <p:growl id="growl" showDetail="true" />
-                    
-                    <div class="ui-fluid">
-                        <div class="p-field">
-                            <p:outputLabel for="login" value="Login:" />
-                            <p:inputText id="login" value="#{loginController.login}" required="true" 
-                                         requiredMessage="O campo Login é obrigatório" />
-                        </div>
-                        
-                        <div class="p-field">
-                            <p:outputLabel for="senha" value="Senha:" />
-                            <p:password id="senha" value="#{loginController.senha}" required="true" 
-                                        requiredMessage="O campo Senha é obrigatório" />
-                        </div>
-                        
-                        <div class="p-field">
-                            <p:commandButton value="Entrar" action="#{loginController.autenticar}" 
-                                             update="growl" styleClass="ui-button-raised" />
+    <h:body styleClass="login-body">
+        <h:form id="form">
+            <p:growl id="growl" showDetail="true" />
+
+            <div class="grid grid-nogutter">
+                <div class="col-12" style="text-align:center">
+                    <p:graphicImage name="images/logo-manhattan.png" library="manhattan-layout" class="logo" />
+                </div>
+            </div>
+
+            <div class="login-panel">
+                <div class="grid">
+                    <div class="col-12 lg:col-6 left-side">
+                        <p:graphicImage name="images/login/login-photo.png" library="manhattan-layout" class="login-image" />
+                    </div>
+
+                    <div class="col-12 lg:col-6 right-side ui-fluid">
+                        <div class="grid">
+                            <div class="col-12">
+                                <h3>Welcome guest!</h3>
+                                <h2>Sign in to Manhattan Network</h2>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="input-wrapper ui-input-icon-left">
+                                    <i class="pi pi-user" />
+                                    <p:inputText id="login"
+                                                 value="#{loginController.login}"
+                                                 autocomplete="off"
+                                                 required="true"
+                                                 requiredMessage="O campo Usuário é obrigatório"
+                                                 placeholder="E-mail" />
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="input-wrapper ui-input-icon-left">
+                                    <i class="pi pi-lock" />
+                                    <p:password id="senha"
+                                                value="#{loginController.senha}"
+                                                feedback="false"
+                                                toggleMask="true"
+                                                required="true"
+                                                requiredMessage="O campo Senha é obrigatório"
+                                                placeholder="Senha" />
+                                </div>
+                            </div>
+
+                            <div class="col-12 button-container">
+                                <p:commandButton value="Acessar"
+                                                 icon="pi pi-sign-in"
+                                                 action="#{loginController.autenticar}"
+                                                 update="growl" />
+                            </div>
                         </div>
                     </div>
-                </p:panel>
-            </h:form>
-        </div>
+                </div>
+            </div>
+        </h:form>
     </h:body>
 </html>

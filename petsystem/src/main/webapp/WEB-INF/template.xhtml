@@ -32,7 +32,8 @@
                 width: 100%;
             }
         </style>
-    </h:head>
+        <h:outputStylesheet library="manhattan-layout" name="css/layout-blue-grey.css" />
+</h:head>
 
     <h:body>
         <p:growl id="growl" showDetail="true" />
@@ -116,5 +117,6 @@
         <div class="footer">
             <h:outputText value="PetSystem - Clínica Veterinária Digital © #{java.time.Year.now().value}" />
         </div>
-    </h:body>
+        <h:outputScript library="manhattan-layout" name="js/layout.js" target="body" />
+</h:body>
 </html>
