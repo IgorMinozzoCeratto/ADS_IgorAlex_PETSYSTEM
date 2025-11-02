@@ -1,3 +1,5 @@
+-- SCHEMA COMPLETO
+
 CREATE TABLE perfil (
     id SERIAL PRIMARY KEY,
     nome VARCHAR(50) NOT NULL UNIQUE,
@@ -64,6 +66,7 @@ CREATE TABLE prontuario (
     id SERIAL PRIMARY KEY,
     id_animal INTEGER NOT NULL UNIQUE,
     data_criacao DATE DEFAULT CURRENT_DATE,
+    observacoes TEXT,                           -- <<<<<<<<<< AQUI
     FOREIGN KEY (id_animal) REFERENCES animal(id) ON DELETE CASCADE
 );
 

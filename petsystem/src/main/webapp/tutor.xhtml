@@ -1,16 +1,13 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui"
-      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+<ui:composition
+    template="/WEB-INF/template.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-<h:head>
-    <title>Cadastro de Tutores - PetSystem</title>
-</h:head>
+    <ui:define name="title">Cadastro de Tutores - PetSystem</ui:define>
 
-<h:body>
-<ui:composition template="/WEB-INF/template.xhtml">
     <ui:define name="content">
         <div class="card">
             <h:form id="form">
@@ -48,12 +45,6 @@
                             <div class="p-field">
                                 <p:outputLabel for="cpf" value="CPF:" />
                                 <p:inputMask id="cpf" value="#{tutorController.tutor.cpf}" mask="999.999.999-99" />
-                            </div>
-
-                            <div class="p-field">
-                                <p:outputLabel for="senha" value="Senha:" />
-                                <p:password id="senha" value="#{tutorController.tutor.senha}"
-                                            feedback="true" toggleMask="true" />
                             </div>
 
                             <div class="p-field">
@@ -136,5 +127,3 @@
         </div>
     </ui:define>
 </ui:composition>
-</h:body>
-</html>

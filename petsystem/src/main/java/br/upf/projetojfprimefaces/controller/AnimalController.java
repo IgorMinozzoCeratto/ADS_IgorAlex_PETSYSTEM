@@ -18,7 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Named
+@Named("animalController") // <<< precisa bater com #{animalController...} no XHTML
 @SessionScoped
 public class AnimalController implements Serializable {
 
@@ -26,13 +26,10 @@ public class AnimalController implements Serializable {
 
     @EJB
     private AnimalFacade animalFacade;
-
     @EJB
     private TutorFacade tutorFacade;
-
     @EJB
     private RacaFacade racaFacade;
-
     @EJB
     private EspecieFacade especieFacade;
 
@@ -41,6 +38,7 @@ public class AnimalController implements Serializable {
     private List<TutorEntity> tutores;
     private List<RacaEntity> racas;
     private List<EspecieEntity> especies;
+
     private String filtroNome;
     private TutorEntity tutorSelecionado;
     private RacaEntity racaSelecionada;
@@ -55,16 +53,16 @@ public class AnimalController implements Serializable {
         animais = new ArrayList<>();
         carregarTutores();
         carregarEspecies();
-        carregarRacas(); // lista inicial de raças
+        carregarRacas(); // lista inicial (pode ficar vazia/geral)
         carregarAnimais();
     }
 
-    // Carrega listas
+    // ----------------- cargas -----------------
     public void carregarTutores() {
         try {
             tutores = tutorFacade.findAll();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar tutores: " + e.getMessage());
+            erro("Erro ao carregar tutores: " + raiz(e));
         }
     }
 
@@ -72,7 +70,7 @@ public class AnimalController implements Serializable {
         try {
             racas = racaFacade.findAll();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar raças: " + e.getMessage());
+            erro("Erro ao carregar raças: " + raiz(e));
         }
     }
 
@@ -80,7 +78,7 @@ public class AnimalController implements Serializable {
         try {
             especies = especieFacade.findAll();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar espécies: " + e.getMessage());
+            erro("Erro ao carregar espécies: " + raiz(e));
         }
     }
 
@@ -88,11 +86,11 @@ public class AnimalController implements Serializable {
         try {
             animais = animalFacade.findAll();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar animais: " + e.getMessage());
+            erro("Erro ao carregar animais: " + raiz(e));
         }
     }
 
-    // Atualiza lista de raças com base na espécie selecionada
+    // filtra raças pela espécie selecionada
     public void carregarRacasPorEspecie() {
         try {
             if (especieSelecionada != null) {
@@ -100,101 +98,102 @@ public class AnimalController implements Serializable {
             } else {
                 racas = new ArrayList<>();
             }
-            racaSelecionada = null; // resetar raça ao mudar espécie
+            racaSelecionada = null; // reset ao mudar espécie
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar raças por espécie: " + e.getMessage());
+            erro("Erro ao carregar raças por espécie: " + raiz(e));
         }
     }
 
-    // Prepara novo animal
+    // ----------------- preparar -----------------
     public void prepararNovoAnimal() {
         animal = new AnimalEntity();
-        animal.setRaca(new RacaEntity());
+        // NÃO setar new RacaEntity() aqui para evitar persistência/transiente indevida
         tutorSelecionado = null;
         racaSelecionada = null;
         especieSelecionada = null;
     }
 
-    // Prepara edição de animal
     public void prepararEditarAnimal(AnimalEntity animalSelecionado) {
-        this.animal = animalSelecionado != null ? animalSelecionado : new AnimalEntity();
-        if (this.animal.getRaca() == null) {
-            this.animal.setRaca(new RacaEntity());
-        }
+        this.animal = (animalSelecionado != null) ? animalSelecionado : new AnimalEntity();
         this.racaSelecionada = this.animal.getRaca();
         this.tutorSelecionado = this.animal.getTutor();
         if (this.racaSelecionada != null) {
             this.especieSelecionada = this.racaSelecionada.getEspecie();
-            carregarRacasPorEspecie(); // garante que as raças corretas sejam carregadas
+            carregarRacasPorEspecie();
+            // garante que a raça do animal exista na lista carregada
         }
     }
 
-    // Salvar animal
+    // ----------------- ações -----------------
     public void salvarAnimal() {
         try {
             if (tutorSelecionado == null) {
-                adicionarMensagemAviso("Selecione um tutor!");
+                aviso("Selecione um tutor!");
                 return;
             }
             if (racaSelecionada == null) {
-                adicionarMensagemAviso("Selecione uma raça!");
+                aviso("Selecione uma raça!");
                 return;
             }
 
+            // associa efetivamente as seleções
             animal.setTutor(tutorSelecionado);
             animal.setRaca(racaSelecionada);
+            // se AnimalEntity tiver campo especie (opcional):
+            // animal.setEspecie(especieSelecionada);
 
             if (animal.getId() == null) {
                 animalFacade.create(animal);
-                adicionarMensagemInfo("Animal cadastrado com sucesso!");
+                info("Animal cadastrado com sucesso!");
             } else {
                 animalFacade.edit(animal);
-                adicionarMensagemInfo("Animal atualizado com sucesso!");
+                info("Animal atualizado com sucesso!");
             }
 
             carregarAnimais();
             prepararNovoAnimal();
 
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao salvar animal: " + e.getMessage());
+            erro("Erro ao salvar animal: " + raiz(e)); // mostra a causa real (FK, validação, etc.)
         }
     }
 
-    // Excluir animal
     public void excluirAnimal(AnimalEntity animalSelecionado) {
         try {
             animalFacade.remove(animalSelecionado);
-            adicionarMensagemInfo("Animal excluído com sucesso!");
+            info("Animal excluído com sucesso!");
             carregarAnimais();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao excluir animal: " + e.getMessage());
+            erro("Erro ao excluir animal: " + raiz(e));
         }
     }
 
-    // Mensagens
-    private void adicionarMensagemInfo(String mensagem) {
+    // ----------------- mensagens util -----------------
+    private void info(String msg) {
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", mensagem));
+                new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", msg));
     }
 
-    private void adicionarMensagemErro(String mensagem) {
+    private void erro(String msg) {
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", mensagem));
+                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", msg));
     }
 
-    private void adicionarMensagemAviso(String mensagem) {
+    private void aviso(String msg) {
         FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Aviso", mensagem));
+                new FacesMessage(FacesMessage.SEVERITY_WARN, "Aviso", msg));
     }
 
-    // Getters e Setters
+    private String raiz(Throwable t) {
+        Throwable c = t;
+        while (c.getCause() != null) {
+            c = c.getCause();
+        }
+        return c.getMessage();
+    }
+
+    // ----------------- getters/setters -----------------
     public AnimalEntity getAnimal() {
-        if (animal == null) {
-            animal = new AnimalEntity();
-            animal.setRaca(new RacaEntity());
-        } else if (animal.getRaca() == null) {
-            animal.setRaca(new RacaEntity());
-        }
         return animal;
     }
 

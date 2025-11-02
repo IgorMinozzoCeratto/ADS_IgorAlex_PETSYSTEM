@@ -6,8 +6,9 @@
       xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
     <h:head>
-        <title>PetSystem - Clínica Veterinária Digital</title>
+        <title><ui:insert name="title">PetSystem - Clínica Veterinária Digital</ui:insert></title>
         <h:outputStylesheet library="manhattan-layout" name="css/primeflex.min.css" />
+        <h:outputStylesheet library="manhattan-layout" name="css/layout-blue-grey.css" />
         <style type="text/css">
             .header {
                 background-color: #f8f9fa;
@@ -32,8 +33,7 @@
                 width: 100%;
             }
         </style>
-        <h:outputStylesheet library="manhattan-layout" name="css/layout-blue-grey.css" />
-</h:head>
+    </h:head>
 
     <h:body>
         <p:growl id="growl" showDetail="true" />
@@ -42,7 +42,9 @@
         <div class="header">
             <h:form>
                 <p:menubar>
-                    <p:menuitem value="Home" icon="pi pi-home" outcome="/animal.xhtml" />
+                    <p:menuitem value="Home" icon="pi pi-home" outcome="/home.xhtml"/>
+
+
 
                     <!-- CADASTROS -->
                     <p:submenu label="Cadastros" icon="pi pi-file" rendered="#{loginController.logado}">
@@ -117,6 +119,7 @@
         <div class="footer">
             <h:outputText value="PetSystem - Clínica Veterinária Digital © #{java.time.Year.now().value}" />
         </div>
+
         <h:outputScript library="manhattan-layout" name="js/layout.js" target="body" />
-</h:body>
+    </h:body>
 </html>

@@ -1,39 +1,57 @@
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Lista de Prontuários</title>
+    <meta charset="UTF-8" />
+    <style>.wrap{max-width:1100px;margin:0 auto;}</style>
+</h:head>
 
-    <h:head>
-        <title>Lista de Prontuários</title>
-    </h:head>
-
-    <h:body>
+<h:body>
+    <div class="wrap">
         <p:panel header="Prontuários Cadastrados">
-            <h:form>
-                <p:commandButton value="Novo Prontuário" action="cadastro.xhtml" icon="pi pi-plus" styleClass="ui-button-success"/>
-                <p:spacer height="10"/>
+            <h:form id="formLista">
+                <p:messages id="msgs" showDetail="true" closable="true" />
 
-                <p:dataTable value="#{prontuarioController.listaProntuarios}" var="prontuario" emptyMessage="Nenhum prontuário encontrado.">
-                    <p:column headerText="ID">
-                        <h:outputText value="#{prontuario.id}"/>
+                <p:commandButton value="Novo Prontuário"
+                                 action="#{prontuarioController.novo}"
+                                 icon="pi pi-plus"
+                                 styleClass="ui-button-success" />
+
+                <p:spacer height="10" />
+
+                <p:dataTable value="#{prontuarioController.listaProntuarios}"
+                             var="p" paginator="true" rows="10" scrollable="true">
+                    <p:column headerText="ID" style="width:90px">
+                        <h:outputText value="#{p.id}" />
                     </p:column>
-                    <p:column headerText="Animal">
-                        <h:outputText value="#{prontuario.animal.nome}"/>
-                    </p:column>
-                    <p:column headerText="Data de Criação">
-                        <h:outputText value="#{prontuario.dataCriacao}">
-                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" timeZone="America/Sao_Paulo"/>
+                    <p:column headerText="Data" style="width:140px">
+                        <h:outputText value="#{p.dataCriacao}">
+                            <f:convertDateTime pattern="dd/MM/yyyy" />
                         </h:outputText>
                     </p:column>
-                    <p:column headerText="Observações">
-                        <h:outputText value="#{prontuario.observacoes}"/>
+                    <p:column headerText="Animal" style="width:220px">
+                        <h:outputText value="#{p.animal.nome}" />
                     </p:column>
-                    <p:column headerText="Ações">
-                        <p:commandButton value="Editar" action="#{prontuarioController.editar(prontuario)}" icon="pi pi-pencil" styleClass="ui-button-info"/>
-                        <p:commandButton value="Excluir" action="#{prontuarioController.excluir(prontuario)}" icon="pi pi-trash" styleClass="ui-button-danger" update="@form">
-                            <p:confirm header="Confirmação" message="Deseja realmente excluir este prontuário?" icon="pi pi-exclamation-triangle"/>
+                    <p:column headerText="Observações">
+                        <h:outputText value="#{p.observacoes}" />
+                    </p:column>
+                    <p:column headerText="Ações" style="width:230px;white-space:nowrap;">
+                        <p:commandButton value="Editar"
+                                         action="#{prontuarioController.editar(p)}"
+                                         icon="pi pi-pencil"
+                                         styleClass="ui-button-warning" />
+                        <p:commandButton value="Excluir"
+                                         action="#{prontuarioController.excluir(p)}"
+                                         icon="pi pi-trash"
+                                         styleClass="ui-button-danger"
+                                         update=":formLista :formLista:msgs"
+                                         style="margin-left:.5rem">
+                            <p:confirm header="Confirmação"
+                                       message="Deseja realmente excluir este prontuário?"
+                                       icon="pi pi-exclamation-triangle" />
                         </p:commandButton>
                     </p:column>
                 </p:dataTable>
@@ -44,6 +62,6 @@
                 </p:confirmDialog>
             </h:form>
         </p:panel>
-    </h:body>
+    </div>
+</h:body>
 </html>
-

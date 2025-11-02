@@ -25,6 +25,8 @@ C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projeto
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\controller\EspecieController.java
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\entity\AnimalEntity.java
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\converter\TutorConverter.java
+C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\converter\RacaConverter.java
+C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\filter\SegurancaFilter.java
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\facade\ExameFacade.java
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\controller\ConsultaController.java
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\facade\ProntuarioFacade.java
@@ -36,6 +38,7 @@ C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projeto
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\FiltroAdministrativo.java
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\entity\LogAcessoEntity.java
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\JakartaRestConfiguration.java
+C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\converter\EspecieConverter.java
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\facade\PerfilFacade.java
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\controller\AnimalController.java
 C:\Users\igoor\OneDrive\Área de Trabalho\petsystem\src\main\java\br\upf\projetojfprimefaces\facade\RacaFacade.java

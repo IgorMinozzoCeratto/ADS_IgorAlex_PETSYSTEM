@@ -1,0 +1,77 @@
+<ui:composition template="/WEB-INF/template.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+
+    <!-- título da aba -->
+    <ui:define name="title">Home - PetSystem</ui:define>
+
+    <!-- conteúdo da página -->
+    <ui:define name="content">
+        <!-- HERO -->
+        <div class="card surface-0" style="max-width: 1080px; margin: 0 auto;">
+            <div class="flex flex-column align-items-center text-center" style="gap: .75rem; padding: 2rem 1rem;">
+                <p:graphicImage name="images/logo-manhattan.png" library="manhattan-layout"
+                                style="height:54px; opacity:.9;" />
+                <h2 class="m-0">Bem-vindo ao PetSystem</h2>
+                <span class="text-color-secondary">Sistema de gerenciamento para clínicas veterinárias</span>
+            </div>
+
+            <!-- “cards” informativos (sem ações) -->
+            <div class="grid">
+                <div class="col-12 md:col-4">
+                    <div class="card surface-card" style="border:1px solid var(--surface-border); border-radius:14px;">
+                        <div class="flex align-items-center" style="gap:.75rem; margin-bottom:.5rem;">
+                            <i class="pi pi-database text-2xl"></i>
+                            <div class="text-lg font-semibold">Cadastros</div>
+                        </div>
+                        <p class="m-0 text-color-secondary" style="line-height:1.6;">
+                            Mantenha <b>Tutores</b>, <b>Animais</b>, <b>Espécies</b> e <b>Raças</b> sempre atualizados.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-4">
+                    <div class="card surface-card" style="border:1px solid var(--surface-border); border-radius:14px;">
+                        <div class="flex align-items-center" style="gap:.75rem; margin-bottom:.5rem;">
+                            <i class="pi pi-heart text-2xl"></i>
+                            <div class="text-lg font-semibold">Atendimento</div>
+                        </div>
+                        <p class="m-0 text-color-secondary" style="line-height:1.6;">
+                            Acompanhe <b>Consultas</b>, <b>Vacinação</b> e <b>Exames</b> em um só lugar.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-12 md:col-4">
+                    <div class="card surface-card" style="border:1px solid var(--surface-border); border-radius:14px;">
+                        <div class="flex align-items-center" style="gap:.75rem; margin-bottom:.5rem;">
+                            <i class="pi pi-wallet text-2xl"></i>
+                            <div class="text-lg font-semibold">Financeiro</div>
+                        </div>
+                        <p class="m-0 text-color-secondary" style="line-height:1.6;">
+                            Visualize <b>Movimentações</b> e <b>Pagamentos</b> com clareza e agilidade.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- bloco de recados -->
+            <div class="card surface-card"
+                 style="border:1px dashed var(--surface-border); border-radius:14px; margin-top:1rem;">
+                <div class="flex align-items-start" style="gap:.75rem;">
+                    <i class="pi pi-info-circle text-xl" style="margin-top:.25rem;"></i>
+                    <div>
+                        <div class="font-medium" style="margin-bottom:.25rem;">Dica</div>
+                        <p class="m-0 text-color-secondary" style="line-height:1.7;">
+                            Use o <b>menu superior</b> para navegar. Se alguma opção não aparecer,
+                            pode ser por <b>permissão do perfil</b> ou porque você ainda não está logado.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>
