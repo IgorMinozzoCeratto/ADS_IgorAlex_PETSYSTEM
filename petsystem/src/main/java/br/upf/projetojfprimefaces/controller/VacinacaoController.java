@@ -1,4 +1,3 @@
-
 package br.upf.projetojfprimefaces.controller;
 
 import br.upf.projetojfprimefaces.entity.FuncionarioEntity;
@@ -23,24 +22,27 @@ import java.util.List;
 public class VacinacaoController implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    
-    @EJB
-    private VacinacaoFacade vacinacaoFacade;
-    
-    @EJB
-    private ProntuarioFacade prontuarioFacade;
-    
-    @EJB
-    private FuncionarioFacade funcionarioFacade;
-    
+
+    @EJB private VacinacaoFacade vacinacaoFacade;
+    @EJB private ProntuarioFacade prontuarioFacade;
+    @EJB private FuncionarioFacade funcionarioFacade;
+
     private VacinacaoEntity vacinacao;
     private List<VacinacaoEntity> vacinacoes;
     private List<ProntuarioEntity> prontuarios;
     private List<FuncionarioEntity> funcionariosAplicadores;
+
+    // Campos do FORMULÁRIO
     private ProntuarioEntity prontuarioSelecionado;
     private FuncionarioEntity funcionarioAplicadorSelecionado;
+
+    // Campos de FILTRO (separados para não sobrescrever os do formulário)
+    private ProntuarioEntity prontuarioFiltroSelecionado;
     private String filtroTipoVacina;
-    
+
+    /** 0 = formulário, 1 = histórico (lista) */
+    private int tabIndex = 1;
+
     @PostConstruct
     public void init() {
         vacinacao = new VacinacaoEntity();
@@ -51,49 +53,46 @@ public class VacinacaoController implements Serializable {
         carregarFuncionariosAplicadores();
         carregarVacinacoes();
     }
-    
+
     public void carregarProntuarios() {
         try {
             prontuarios = prontuarioFacade.findAll();
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar prontuários: " + e.getMessage()));
+            adicionarMensagemErro("Erro ao carregar prontuários: " + e.getMessage());
         }
     }
-    
+
     public void carregarFuncionariosAplicadores() {
         try {
-            // Assumindo que todos os funcionários podem aplicar vacinas
-            funcionariosAplicadores = funcionarioFacade.findAll(); 
+            funcionariosAplicadores = funcionarioFacade.findAll(); // filtre se tiver perfil próprio
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar funcionários aplicadores: " + e.getMessage()));
+            adicionarMensagemErro("Erro ao carregar funcionários aplicadores: " + e.getMessage());
         }
     }
-    
+
     public void carregarVacinacoes() {
         try {
             vacinacoes = vacinacaoFacade.findAll();
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao carregar vacinações: " + e.getMessage()));
+            adicionarMensagemErro("Erro ao carregar vacinações: " + e.getMessage());
         }
     }
-    
+
+    // ====== FILTROS ======
+
     public void filtrarVacinacoesPorProntuario() {
         try {
-            if (prontuarioSelecionado != null) {
-                // vacinacoes = vacinacaoFacade.buscarPorProntuario(prontuarioSelecionado);
+            if (prontuarioFiltroSelecionado != null) {
+                // vacinacoes = vacinacaoFacade.buscarPorProntuario(prontuarioFiltroSelecionado);
                 adicionarMensagemAviso("Filtro por prontuário ainda não implementado na fachada.");
             } else {
                 carregarVacinacoes();
             }
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao filtrar vacinações por prontuário: " + e.getMessage()));
+            adicionarMensagemErro("Erro ao filtrar vacinações por prontuário: " + e.getMessage());
         }
     }
-    
+
     public void filtrarVacinacoesPorTipo() {
         try {
             if (filtroTipoVacina != null && !filtroTipoVacina.isEmpty()) {
@@ -103,24 +102,33 @@ public class VacinacaoController implements Serializable {
                 carregarVacinacoes();
             }
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao filtrar vacinações por tipo: " + e.getMessage()));
+            adicionarMensagemErro("Erro ao filtrar vacinações por tipo: " + e.getMessage());
         }
     }
-    
+
+    // ====== FLUXO FORM ======
+
     public void prepararNovaVacinacao() {
         vacinacao = new VacinacaoEntity();
-        vacinacao.setDataAplicacao(new Date()); // Data atual como padrão
+        vacinacao.setDataAplicacao(new Date()); // padrão: hoje
         prontuarioSelecionado = null;
         funcionarioAplicadorSelecionado = null;
+        // NÃO zera prontuarioFiltroSelecionado
+        tabIndex = 0; // vai para o formulário
     }
-    
+
     public void prepararEditarVacinacao(VacinacaoEntity vacinacaoSelecionada) {
-        vacinacao = vacinacaoSelecionada;
-        prontuarioSelecionado = vacinacaoSelecionada.getProntuario();
-        funcionarioAplicadorSelecionado = vacinacaoSelecionada.getFuncionarioAplicador();
+        try {
+            // carrega gerenciada pelo ID (evita detached/lazy)
+            this.vacinacao = vacinacaoFacade.find(vacinacaoSelecionada.getId());
+            this.prontuarioSelecionado = vacinacao.getProntuario();
+            this.funcionarioAplicadorSelecionado = vacinacao.getFuncionarioAplicador();
+            tabIndex = 0; // abre a aba do formulário
+        } catch (Exception e) {
+            adicionarMensagemErro("Erro ao preparar edição: " + e.getMessage());
+        }
     }
-    
+
     public void salvarVacinacao() {
         try {
             if (prontuarioSelecionado == null) {
@@ -131,112 +139,80 @@ public class VacinacaoController implements Serializable {
                 adicionarMensagemAviso("Selecione um funcionário aplicador!");
                 return;
             }
+
+            // sincroniza selecionados -> entity
             vacinacao.setProntuario(prontuarioSelecionado);
             vacinacao.setFuncionarioAplicador(funcionarioAplicadorSelecionado);
-            
+
             if (vacinacao.getId() == null) {
                 vacinacaoFacade.create(vacinacao);
-                FacesContext.getCurrentInstance().addMessage(null, 
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Vacinação registrada com sucesso!"));
+                adicionarMensagemInfo("Vacinação registrada com sucesso!");
             } else {
                 vacinacaoFacade.edit(vacinacao);
-                FacesContext.getCurrentInstance().addMessage(null, 
-                        new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Vacinação atualizada com sucesso!"));
+                adicionarMensagemInfo("Vacinação atualizada com sucesso!");
             }
-            
+
             carregarVacinacoes();
-            prepararNovaVacinacao();
-            
+            tabIndex = 1;            // volta para a aba histórico
+            prepararNovaVacinacao();  // deixa pronto para novo registro (opcional)
+
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao salvar vacinação: " + e.getMessage()));
+            adicionarMensagemErro("Erro ao salvar vacinação: " + e.getMessage());
         }
     }
-    
+
     public void excluirVacinacao(VacinacaoEntity vacinacaoSelecionada) {
         try {
             vacinacaoFacade.remove(vacinacaoSelecionada);
-            FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", "Registro de vacinação excluído com sucesso!"));
-            
+            adicionarMensagemInfo("Registro de vacinação excluído com sucesso!");
             carregarVacinacoes();
-            
         } catch (Exception e) {
-            FacesContext.getCurrentInstance().addMessage(null, 
-                    new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao excluir vacinação: " + e.getMessage()));
+            adicionarMensagemErro("Erro ao excluir vacinação: " + e.getMessage());
         }
     }
 
-    // Getters e Setters
-    public VacinacaoEntity getVacinacao() {
-        return vacinacao;
-    }
+    // ====== Getters/Setters ======
 
-    public void setVacinacao(VacinacaoEntity vacinacao) {
-        this.vacinacao = vacinacao;
-    }
+    public VacinacaoEntity getVacinacao() { return vacinacao; }
+    public void setVacinacao(VacinacaoEntity vacinacao) { this.vacinacao = vacinacao; }
 
-    public List<VacinacaoEntity> getVacinacoes() {
-        return vacinacoes;
-    }
+    public List<VacinacaoEntity> getVacinacoes() { return vacinacoes; }
+    public void setVacinacoes(List<VacinacaoEntity> vacinacoes) { this.vacinacoes = vacinacoes; }
 
-    public void setVacinacoes(List<VacinacaoEntity> vacinacoes) {
-        this.vacinacoes = vacinacoes;
-    }
+    public List<ProntuarioEntity> getProntuarios() { return prontuarios; }
+    public void setProntuarios(List<ProntuarioEntity> prontuarios) { this.prontuarios = prontuarios; }
 
-    public List<ProntuarioEntity> getProntuarios() {
-        return prontuarios;
-    }
+    public List<FuncionarioEntity> getFuncionariosAplicadores() { return funcionariosAplicadores; }
+    public void setFuncionariosAplicadores(List<FuncionarioEntity> funcionariosAplicadores) { this.funcionariosAplicadores = funcionariosAplicadores; }
 
-    public void setProntuarios(List<ProntuarioEntity> prontuarios) {
-        this.prontuarios = prontuarios;
-    }
+    // formulário
+    public ProntuarioEntity getProntuarioSelecionado() { return prontuarioSelecionado; }
+    public void setProntuarioSelecionado(ProntuarioEntity prontuarioSelecionado) { this.prontuarioSelecionado = prontuarioSelecionado; }
 
-    public List<FuncionarioEntity> getFuncionariosAplicadores() {
-        return funcionariosAplicadores;
-    }
+    public FuncionarioEntity getFuncionarioAplicadorSelecionado() { return funcionarioAplicadorSelecionado; }
+    public void setFuncionarioAplicadorSelecionado(FuncionarioEntity funcionarioAplicadorSelecionado) { this.funcionarioAplicadorSelecionado = funcionarioAplicadorSelecionado; }
 
-    public void setFuncionariosAplicadores(List<FuncionarioEntity> funcionariosAplicadores) {
-        this.funcionariosAplicadores = funcionariosAplicadores;
-    }
+    // filtro
+    public ProntuarioEntity getProntuarioFiltroSelecionado() { return prontuarioFiltroSelecionado; }
+    public void setProntuarioFiltroSelecionado(ProntuarioEntity prontuarioFiltroSelecionado) { this.prontuarioFiltroSelecionado = prontuarioFiltroSelecionado; }
 
-    public ProntuarioEntity getProntuarioSelecionado() {
-        return prontuarioSelecionado;
-    }
+    public String getFiltroTipoVacina() { return filtroTipoVacina; }
+    public void setFiltroTipoVacina(String filtroTipoVacina) { this.filtroTipoVacina = filtroTipoVacina; }
 
-    public void setProntuarioSelecionado(ProntuarioEntity prontuarioSelecionado) {
-        this.prontuarioSelecionado = prontuarioSelecionado;
-    }
+    public int getTabIndex() { return tabIndex; }
+    public void setTabIndex(int tabIndex) { this.tabIndex = tabIndex; }
 
-    public FuncionarioEntity getFuncionarioAplicadorSelecionado() {
-        return funcionarioAplicadorSelecionado;
-    }
-
-    public void setFuncionarioAplicadorSelecionado(FuncionarioEntity funcionarioAplicadorSelecionado) {
-        this.funcionarioAplicadorSelecionado = funcionarioAplicadorSelecionado;
-    }
-
-    public String getFiltroTipoVacina() {
-        return filtroTipoVacina;
-    }
-
-    public void setFiltroTipoVacina(String filtroTipoVacina) {
-        this.filtroTipoVacina = filtroTipoVacina;
-    }
-    
+    // ====== mensagens ======
     private void adicionarMensagemInfo(String mensagem) {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", mensagem));
     }
-
     private void adicionarMensagemErro(String mensagem) {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", mensagem));
     }
-
     private void adicionarMensagemAviso(String mensagem) {
         FacesContext.getCurrentInstance().addMessage(null,
                 new FacesMessage(FacesMessage.SEVERITY_WARN, "Aviso", mensagem));
     }
 }
-

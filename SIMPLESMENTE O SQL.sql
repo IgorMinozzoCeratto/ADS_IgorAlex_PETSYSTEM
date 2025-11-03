@@ -153,6 +153,10 @@ INSERT INTO raca (nome, id_especie) VALUES
 ('Persa', (SELECT id FROM especie WHERE nome = 'Gato')),
 ('Papagaio', (SELECT id FROM especie WHERE nome = 'Ave'));
 
+ALTER TABLE vacinacao ADD COLUMN observacoes TEXT;
+ALTER TABLE exame ADD COLUMN observacoes TEXT;
+
+
 CREATE INDEX idx_funcionario_perfil ON funcionario (id_perfil);
 CREATE INDEX idx_animal_tutor ON animal (id_tutor);
 CREATE INDEX idx_animal_raca ON animal (id_raca);
@@ -163,3 +167,5 @@ CREATE INDEX idx_consulta_veterinario ON consulta (id_veterinario);
 CREATE INDEX idx_exame_prontuario ON exame (id_prontuario);
 CREATE INDEX idx_vacinacao_prontuario ON vacinacao (id_prontuario);
 CREATE INDEX idx_pagamento_tutor ON pagamento (id_tutor);
+
+

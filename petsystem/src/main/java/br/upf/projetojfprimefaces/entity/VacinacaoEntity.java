@@ -1,4 +1,3 @@
-
 package br.upf.projetojfprimefaces.entity;
 
 import jakarta.persistence.Basic;
@@ -16,7 +15,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Objects;
 
 @Entity
 @Table(name = "vacinacao")
@@ -56,14 +54,16 @@ public class VacinacaoEntity implements Serializable {
     @ManyToOne(optional = false)
     private FuncionarioEntity funcionarioAplicador;
 
-    public VacinacaoEntity() {
-    }
+    // ---- NOVO CAMPO PARA O XHTML ----
+    @Column(name = "observacoes", columnDefinition = "TEXT")
+    private String observacoes;
 
-    public VacinacaoEntity(Integer id) {
-        this.id = id;
-    }
+    public VacinacaoEntity() { }
 
-    public VacinacaoEntity(Integer id, String tipoVacina, Date dataAplicacao, ProntuarioEntity prontuario, FuncionarioEntity funcionarioAplicador) {
+    public VacinacaoEntity(Integer id) { this.id = id; }
+
+    public VacinacaoEntity(Integer id, String tipoVacina, Date dataAplicacao,
+                           ProntuarioEntity prontuario, FuncionarioEntity funcionarioAplicador) {
         this.id = id;
         this.tipoVacina = tipoVacina;
         this.dataAplicacao = dataAplicacao;
@@ -71,76 +71,38 @@ public class VacinacaoEntity implements Serializable {
         this.funcionarioAplicador = funcionarioAplicador;
     }
 
-    public Integer getId() {
-        return id;
-    }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    public String getTipoVacina() { return tipoVacina; }
+    public void setTipoVacina(String tipoVacina) { this.tipoVacina = tipoVacina; }
 
-    public String getTipoVacina() {
-        return tipoVacina;
-    }
+    public Date getDataAplicacao() { return dataAplicacao; }
+    public void setDataAplicacao(Date dataAplicacao) { this.dataAplicacao = dataAplicacao; }
 
-    public void setTipoVacina(String tipoVacina) {
-        this.tipoVacina = tipoVacina;
-    }
+    public String getLote() { return lote; }
+    public void setLote(String lote) { this.lote = lote; }
 
-    public Date getDataAplicacao() {
-        return dataAplicacao;
-    }
+    public ProntuarioEntity getProntuario() { return prontuario; }
+    public void setProntuario(ProntuarioEntity prontuario) { this.prontuario = prontuario; }
 
-    public void setDataAplicacao(Date dataAplicacao) {
-        this.dataAplicacao = dataAplicacao;
-    }
+    public FuncionarioEntity getFuncionarioAplicador() { return funcionarioAplicador; }
+    public void setFuncionarioAplicador(FuncionarioEntity funcionarioAplicador) { this.funcionarioAplicador = funcionarioAplicador; }
 
-    public String getLote() {
-        return lote;
-    }
-
-    public void setLote(String lote) {
-        this.lote = lote;
-    }
-
-    public ProntuarioEntity getProntuario() {
-        return prontuario;
-    }
-
-    public void setProntuario(ProntuarioEntity prontuario) {
-        this.prontuario = prontuario;
-    }
-
-    public FuncionarioEntity getFuncionarioAplicador() {
-        return funcionarioAplicador;
-    }
-
-    public void setFuncionarioAplicador(FuncionarioEntity funcionarioAplicador) {
-        this.funcionarioAplicador = funcionarioAplicador;
-    }
+    public String getObservacoes() { return observacoes; }
+    public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
 
     @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
+    public int hashCode() { return (id != null ? id.hashCode() : 0); }
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof VacinacaoEntity)) {
-            return false;
-        }
+        if (!(object instanceof VacinacaoEntity)) return false;
         VacinacaoEntity other = (VacinacaoEntity) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) return false;
         return true;
     }
 
     @Override
-    public String toString() {
-        return "VacinacaoEntity[ id=" + id + " ]";
-    }
+    public String toString() { return "VacinacaoEntity[ id=" + id + " ]"; }
 }
-

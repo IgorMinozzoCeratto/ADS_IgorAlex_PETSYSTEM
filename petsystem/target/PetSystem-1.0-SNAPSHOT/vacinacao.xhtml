@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
@@ -14,66 +13,100 @@
 <ui:composition template="/WEB-INF/template.xhtml">
     <ui:define name="content">
         <div class="card">
-            <h:form id="form">
+
+            <h:form id="mainForm" prependId="true">
+                <!-- Mensagens gerais + por-campo -->
+                <p:messages id="msgs" showDetail="true" closable="true" />
                 <p:growl id="growl" showDetail="true" />
 
-                <p:tabView>
+                <!-- 0 = formulário | 1 = histórico -->
+                <p:tabView id="tabs" widgetVar="tabs" activeIndex="#{vacinacaoController.tabIndex}">
                     <p:tab title="Registro de Vacinação">
                         <div class="ui-fluid">
+
+                            <!-- PRONTUÁRIO -->
                             <div class="p-field">
                                 <p:outputLabel for="prontuario" value="Prontuário:" />
-                                <p:selectOneMenu id="prontuario" value="#{vacinacaoController.prontuarioSelecionado}" required="true"
-                                                 requiredMessage="O campo Prontuário é obrigatório" converter="#{prontuarioConverter}">
+                                <p:selectOneMenu id="prontuario"
+                                                 value="#{vacinacaoController.prontuarioSelecionado}"
+                                                 required="true"
+                                                 requiredMessage="O campo Prontuário é obrigatório"
+                                                 converter="prontuarioConverter"
+                                                 converterMessage="Não foi possível identificar o prontuário selecionado.">
                                     <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
                                     <f:selectItems value="#{vacinacaoController.prontuarios}" var="prontuario"
-                                                   itemLabel="#{prontuario.animal.nome} (ID: #{prontuario.id})" itemValue="#{prontuario}" />
+                                                   itemLabel="#{prontuario.animal.nome} (ID: #{prontuario.id})"
+                                                   itemValue="#{prontuario}" />
                                 </p:selectOneMenu>
+                                <p:message for="prontuario" />
                             </div>
 
+                            <!-- TIPO DE VACINA -->
                             <div class="p-field">
                                 <p:outputLabel for="tipoVacina" value="Tipo de Vacina:" />
-                                <p:inputText id="tipoVacina" value="#{vacinacaoController.vacinacao.tipoVacina}" required="true"
+                                <p:inputText id="tipoVacina"
+                                             value="#{vacinacaoController.vacinacao.tipoVacina}"
+                                             required="true"
                                              requiredMessage="O campo Tipo de Vacina é obrigatório" />
+                                <p:message for="tipoVacina" />
                             </div>
 
+                            <!-- DATA APLICAÇÃO -->
                             <div class="p-field">
                                 <p:outputLabel for="dataAplicacao" value="Data da Aplicação:" />
-                                <p:datePicker id="dataAplicacao" value="#{vacinacaoController.vacinacao.dataAplicacao}"
-                                              pattern="dd/MM/yyyy" showIcon="true" required="true"
+                                <p:datePicker id="dataAplicacao"
+                                              value="#{vacinacaoController.vacinacao.dataAplicacao}"
+                                              pattern="dd/MM/yyyy"
+                                              showIcon="true"
+                                              required="true"
                                               requiredMessage="O campo Data da Aplicação é obrigatório" />
+                                <p:message for="dataAplicacao" />
                             </div>
 
+                            <!-- LOTE -->
                             <div class="p-field">
                                 <p:outputLabel for="lote" value="Lote:" />
                                 <p:inputText id="lote" value="#{vacinacaoController.vacinacao.lote}" />
                             </div>
 
+                            <!-- FUNCIONÁRIO APLICADOR -->
                             <div class="p-field">
                                 <p:outputLabel for="funcionarioAplicador" value="Funcionário Aplicador:" />
-                                <p:selectOneMenu id="funcionarioAplicador" value="#{vacinacaoController.funcionarioAplicadorSelecionado}" required="true"
-                                                 requiredMessage="O campo Funcionário Aplicador é obrigatório" converter="#{funcionarioConverter}">
+                                <p:selectOneMenu id="funcionarioAplicador"
+                                                 value="#{vacinacaoController.funcionarioAplicadorSelecionado}"
+                                                 required="true"
+                                                 requiredMessage="O campo Funcionário Aplicador é obrigatório"
+                                                 converter="funcionarioConverter"
+                                                 converterMessage="Não foi possível identificar o funcionário selecionado.">
                                     <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
                                     <f:selectItems value="#{vacinacaoController.funcionariosAplicadores}" var="funcionario"
                                                    itemLabel="#{funcionario.nome}" itemValue="#{funcionario}" />
                                 </p:selectOneMenu>
+                                <p:message for="funcionarioAplicador" />
                             </div>
 
+                            <!-- OBSERVAÇÕES -->
                             <div class="p-field">
                                 <p:outputLabel for="observacoes" value="Observações:" />
-                                <p:inputTextarea id="observacoes" value="#{vacinacaoController.vacinacao.observacoes}" rows="5" />
+                                <p:inputTextarea id="observacoes"
+                                                 value="#{vacinacaoController.vacinacao.observacoes}"
+                                                 rows="5" />
                             </div>
 
+                            <!-- AÇÕES -->
                             <div class="p-field">
                                 <p:commandButton value="Salvar"
                                                  action="#{vacinacaoController.salvarVacinacao}"
-                                                 update="growl tabela"
+                                                 process="@form"
+                                                 update="msgs growl tabela :mainForm:tabs"
                                                  styleClass="ui-button-raised" />
                                 <p:commandButton value="Limpar"
                                                  action="#{vacinacaoController.prepararNovaVacinacao}"
-                                                 update="@form"
                                                  process="@this"
+                                                 update="@form"
                                                  styleClass="ui-button-secondary" />
                             </div>
+
                         </div>
                     </p:tab>
 
@@ -81,20 +114,26 @@
                         <div class="ui-fluid">
                             <div class="p-field">
                                 <p:outputLabel for="prontuarioFiltro" value="Filtrar por Prontuário:" />
-                                <p:selectOneMenu id="prontuarioFiltro" value="#{vacinacaoController.prontuarioSelecionado}"
-                                                 converter="#{prontuarioConverter}">
+                                <!-- Usa a MESMA propriedade do controller (prontuarioSelecionado),
+                                     pois o seu bean não tem prontuarioFiltroSelecionado -->
+                                <p:selectOneMenu id="prontuarioFiltro"
+                                                 value="#{vacinacaoController.prontuarioSelecionado}"
+                                                 converter="prontuarioConverter"
+                                                 converterMessage="Não foi possível identificar o prontuário selecionado.">
                                     <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
                                     <f:selectItems value="#{vacinacaoController.prontuarios}" var="prontuario"
-                                                   itemLabel="#{prontuario.animal.nome} (ID: #{prontuario.id})" itemValue="#{prontuario}" />
+                                                   itemLabel="#{prontuario.animal.nome} (ID: #{prontuario.id})"
+                                                   itemValue="#{prontuario}" />
                                 </p:selectOneMenu>
                                 <p:commandButton value="Filtrar"
                                                  action="#{vacinacaoController.filtrarVacinacoesPorProntuario}"
+                                                 process="@this"
                                                  update="tabela"
                                                  styleClass="ui-button-raised" />
                                 <p:commandButton value="Limpar Filtro"
                                                  action="#{vacinacaoController.carregarVacinacoes}"
-                                                 update="tabela prontuarioFiltro"
                                                  process="@this"
+                                                 update="tabela prontuarioFiltro"
                                                  styleClass="ui-button-secondary" />
                             </div>
 
@@ -133,23 +172,25 @@
 
                                 <p:column headerText="Ações" style="width:150px">
                                     <p:commandButton icon="pi pi-pencil"
-                                                     update="@form"
                                                      action="#{vacinacaoController.prepararEditarVacinacao(vacinacao)}"
+                                                     process="@this"
+                                                     update=":mainForm :mainForm:tabs"
                                                      styleClass="edit-button rounded-button ui-button-success" />
                                     <p:commandButton icon="pi pi-trash"
-                                                     update="tabela growl"
                                                      action="#{vacinacaoController.excluirVacinacao(vacinacao)}"
+                                                     process="@this"
+                                                     update="tabela msgs growl"
                                                      styleClass="ui-button-danger rounded-button"
-                                                     onclick="return confirm(\'Confirma a exclusão deste registro de vacinação?\');" />
+                                                     onclick="return confirm('Confirma a exclusão deste registro de vacinação?');" />
                                 </p:column>
                             </p:dataTable>
                         </div>
                     </p:tab>
                 </p:tabView>
             </h:form>
+
         </div>
     </ui:define>
 </ui:composition>
 </h:body>
 </html>
-

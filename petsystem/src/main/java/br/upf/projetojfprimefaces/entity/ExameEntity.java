@@ -1,4 +1,3 @@
-
 package br.upf.projetojfprimefaces.entity;
 
 import jakarta.persistence.Basic;
@@ -16,7 +15,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Objects;
 
 @Entity
 @Table(name = "exame")
@@ -45,6 +43,10 @@ public class ExameEntity implements Serializable {
     @Column(name = "resultado", columnDefinition = "TEXT")
     private String resultado;
 
+    // >>> ADICIONADO: observacoes <<<
+    @Column(name = "observacoes", columnDefinition = "TEXT")
+    private String observacoes;
+
     @Size(max = 255)
     @Column(name = "documento_anexo_url", length = 255)
     private String documentoAnexoUrl;
@@ -59,13 +61,8 @@ public class ExameEntity implements Serializable {
     @ManyToOne(optional = false)
     private FuncionarioEntity veterinario;
 
-    public ExameEntity() {
-    }
-
-    public ExameEntity(Integer id) {
-        this.id = id;
-    }
-
+    public ExameEntity() {}
+    public ExameEntity(Integer id) { this.id = id; }
     public ExameEntity(Integer id, String tipoExame, Date dataExame, ProntuarioEntity prontuario, FuncionarioEntity veterinario) {
         this.id = id;
         this.tipoExame = tipoExame;
@@ -74,84 +71,42 @@ public class ExameEntity implements Serializable {
         this.veterinario = veterinario;
     }
 
-    public Integer getId() {
-        return id;
-    }
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    public String getTipoExame() { return tipoExame; }
+    public void setTipoExame(String tipoExame) { this.tipoExame = tipoExame; }
 
-    public String getTipoExame() {
-        return tipoExame;
-    }
+    public Date getDataExame() { return dataExame; }
+    public void setDataExame(Date dataExame) { this.dataExame = dataExame; }
 
-    public void setTipoExame(String tipoExame) {
-        this.tipoExame = tipoExame;
-    }
+    public String getResultado() { return resultado; }
+    public void setResultado(String resultado) { this.resultado = resultado; }
 
-    public Date getDataExame() {
-        return dataExame;
-    }
+    // >>> GET/SET observacoes <<<
+    public String getObservacoes() { return observacoes; }
+    public void setObservacoes(String observacoes) { this.observacoes = observacoes; }
 
-    public void setDataExame(Date dataExame) {
-        this.dataExame = dataExame;
-    }
+    public String getDocumentoAnexoUrl() { return documentoAnexoUrl; }
+    public void setDocumentoAnexoUrl(String documentoAnexoUrl) { this.documentoAnexoUrl = documentoAnexoUrl; }
 
-    public String getResultado() {
-        return resultado;
-    }
+    public ProntuarioEntity getProntuario() { return prontuario; }
+    public void setProntuario(ProntuarioEntity prontuario) { this.prontuario = prontuario; }
 
-    public void setResultado(String resultado) {
-        this.resultado = resultado;
-    }
-
-    public String getDocumentoAnexoUrl() {
-        return documentoAnexoUrl;
-    }
-
-    public void setDocumentoAnexoUrl(String documentoAnexoUrl) {
-        this.documentoAnexoUrl = documentoAnexoUrl;
-    }
-
-    public ProntuarioEntity getProntuario() {
-        return prontuario;
-    }
-
-    public void setProntuario(ProntuarioEntity prontuario) {
-        this.prontuario = prontuario;
-    }
-
-    public FuncionarioEntity getVeterinario() {
-        return veterinario;
-    }
-
-    public void setVeterinario(FuncionarioEntity veterinario) {
-        this.veterinario = veterinario;
-    }
+    public FuncionarioEntity getVeterinario() { return veterinario; }
+    public void setVeterinario(FuncionarioEntity veterinario) { this.veterinario = veterinario; }
 
     @Override
-    public int hashCode() {
-        int hash = 0;
-        hash += (id != null ? id.hashCode() : 0);
-        return hash;
-    }
+    public int hashCode() { return (id != null ? id.hashCode() : 0); }
 
     @Override
     public boolean equals(Object object) {
-        if (!(object instanceof ExameEntity)) {
-            return false;
-        }
+        if (!(object instanceof ExameEntity)) return false;
         ExameEntity other = (ExameEntity) object;
-        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
-            return false;
-        }
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) return false;
         return true;
     }
 
     @Override
-    public String toString() {
-        return "ExameEntity[ id=" + id + " ]";
-    }
+    public String toString() { return "ExameEntity[ id=" + id + " ]"; }
 }
-

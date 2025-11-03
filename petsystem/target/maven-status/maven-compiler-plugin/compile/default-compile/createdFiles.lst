@@ -1,3 +1,4 @@
+br\upf\projetojfprimefaces\converter\OffsetDateTimeConverter.class
 br\upf\projetojfprimefaces\controller\AnimalController.class
 br\upf\projetojfprimefaces\entity\EspecieEntity.class
 br\upf\projetojfprimefaces\facade\FuncionarioFacade.class
@@ -27,6 +28,7 @@ br\upf\projetojfprimefaces\controller\LoginController.class
 br\upf\projetojfprimefaces\converter\RacaConverter.class
 br\upf\projetojfprimefaces\entity\TutorEntity.class
 br\upf\projetojfprimefaces\controller\FinanceiroMovimentacaoController.class
+br\upf\projetojfprimefaces\converter\ProntuarioConverter.class
 br\upf\projetojfprimefaces\converter\AnimalConverter.class
 br\upf\projetojfprimefaces\facade\PerfilFacade.class
 br\upf\projetojfprimefaces\controller\LogAcessoController.class
