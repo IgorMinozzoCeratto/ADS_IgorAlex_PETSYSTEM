@@ -13,43 +13,40 @@
 <ui:composition template="/WEB-INF/template.xhtml">
     <ui:define name="content">
         <div class="card">
-            <!-- Use apenas um form na página -->
             <h:form id="mainForm" prependId="true">
+                <p:messages id="msgs" showDetail="true" closable="true" />
                 <p:growl id="growl" showDetail="true" />
 
-                <!-- Se quiser controlar a aba via bean, adicione activeIndex="#{exameController.tabIndex}" -->
-                <p:tabView id="tabs" widgetVar="tabs">
-
-                    <!-- ===================== Aba de cadastro ===================== -->
+                <p:tabView id="tabs" widgetVar="tabs" activeIndex="#{exameController.tabIndex}">
                     <p:tab title="Registro de Exame">
                         <div class="ui-fluid">
 
-                            <!-- Prontuário -->
+                            <!-- PRONTUÁRIO (direto no entity) -->
                             <div class="p-field">
                                 <p:outputLabel for="prontuario" value="Prontuário:" />
                                 <p:selectOneMenu id="prontuario"
-                                                 value="#{exameController.prontuarioSelecionado}"
+                                                 value="#{exameController.exame.prontuario}"
                                                  required="true"
                                                  requiredMessage="O campo Prontuário é obrigatório"
                                                  converter="prontuarioConverter"
-                                                 converterMessage="Não foi possível converter o prontuário selecionado.">
+                                                 converterMessage="Não foi possível identificar o prontuário.">
                                     <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
-                                    <f:selectItems value="#{exameController.prontuarios}" var="prontuario"
-                                                   itemLabel="#{prontuario.animal.nome} (ID: #{prontuario.id})"
-                                                   itemValue="#{prontuario}" />
+                                    <f:selectItems value="#{exameController.prontuarios}" var="p"
+                                                   itemLabel="#{p.animal.nome} (ID: #{p.id})"
+                                                   itemValue="#{p}" />
                                 </p:selectOneMenu>
+                                <p:message for="prontuario" />
                             </div>
 
-                            <!-- Tipo de exame -->
                             <div class="p-field">
                                 <p:outputLabel for="tipoExame" value="Tipo de Exame:" />
                                 <p:inputText id="tipoExame"
                                              value="#{exameController.exame.tipoExame}"
                                              required="true"
                                              requiredMessage="O campo Tipo de Exame é obrigatório" />
+                                <p:message for="tipoExame" />
                             </div>
 
-                            <!-- Data do exame -->
                             <div class="p-field">
                                 <p:outputLabel for="dataExame" value="Data do Exame:" />
                                 <p:datePicker id="dataExame"
@@ -58,9 +55,9 @@
                                               showIcon="true"
                                               required="true"
                                               requiredMessage="O campo Data do Exame é obrigatório" />
+                                <p:message for="dataExame" />
                             </div>
 
-                            <!-- Resultado -->
                             <div class="p-field">
                                 <p:outputLabel for="resultado" value="Resultado:" />
                                 <p:inputTextarea id="resultado"
@@ -68,29 +65,28 @@
                                                  rows="5" />
                             </div>
 
-                            <!-- Veterinário -->
+                            <!-- VETERINÁRIO (direto no entity) -->
                             <div class="p-field">
                                 <p:outputLabel for="veterinario" value="Veterinário Responsável:" />
                                 <p:selectOneMenu id="veterinario"
-                                                 value="#{exameController.veterinarioSelecionado}"
+                                                 value="#{exameController.exame.veterinario}"
                                                  required="true"
                                                  requiredMessage="O campo Veterinário é obrigatório"
                                                  converter="funcionarioConverter"
-                                                 converterMessage="Não foi possível converter o veterinário selecionado.">
+                                                 converterMessage="Não foi possível identificar o veterinário.">
                                     <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
-                                    <f:selectItems value="#{exameController.veterinarios}" var="veterinario"
-                                                   itemLabel="#{veterinario.nome}" itemValue="#{veterinario}" />
+                                    <f:selectItems value="#{exameController.veterinarios}" var="v"
+                                                   itemLabel="#{v.nome}" itemValue="#{v}" />
                                 </p:selectOneMenu>
+                                <p:message for="veterinario" />
                             </div>
 
-                            <!-- Documento anexo URL -->
                             <div class="p-field">
                                 <p:outputLabel for="documentoAnexoUrl" value="URL do Documento Anexo:" />
                                 <p:inputText id="documentoAnexoUrl"
                                              value="#{exameController.exame.documentoAnexoUrl}" />
                             </div>
 
-                            <!-- Observações -->
                             <div class="p-field">
                                 <p:outputLabel for="observacoes" value="Observações:" />
                                 <p:inputTextarea id="observacoes"
@@ -98,53 +94,44 @@
                                                  rows="5" />
                             </div>
 
-                            <!-- Botões -->
                             <div class="p-field">
                                 <p:commandButton value="Salvar"
-                                                 action="#{exameController.salvarExame}"
+                                                 action="#{exameController.salvar}"
                                                  process="@form"
-                                                 update="growl tabela :mainForm:tabs"
+                                                 update=":mainForm:msgs :mainForm:growl :mainForm:tabs :mainForm:tabs:tabela"
                                                  styleClass="ui-button-raised" />
                                 <p:commandButton value="Limpar"
-                                                 action="#{exameController.prepararNovoExame}"
+                                                 action="#{exameController.prepararNovo}"
                                                  process="@this"
-                                                 update="@form"
+                                                 update=":mainForm"
                                                  styleClass="ui-button-secondary" />
                             </div>
                         </div>
                     </p:tab>
 
-                    <!-- ===================== Aba de histórico ===================== -->
                     <p:tab title="Histórico de Exames">
                         <div class="ui-fluid">
-
-                            <!-- Filtro por prontuário -->
                             <div class="p-field">
                                 <p:outputLabel for="prontuarioFiltro" value="Filtrar por Prontuário:" />
                                 <p:selectOneMenu id="prontuarioFiltro"
-                                                 value="#{exameController.prontuarioSelecionado}"
-                                                 converter="prontuarioConverter"
-                                                 converterMessage="Não foi possível converter o prontuário selecionado.">
+                                                 value="#{exameController.filtroProntuario}"
+                                                 converter="prontuarioConverter">
                                     <f:selectItem noSelectionOption="true" itemLabel="Selecione" itemValue="#{null}" />
-                                    <f:selectItems value="#{exameController.prontuarios}" var="prontuario"
-                                                   itemLabel="#{prontuario.animal.nome} (ID: #{prontuario.id})"
-                                                   itemValue="#{prontuario}" />
+                                    <f:selectItems value="#{exameController.prontuarios}" var="pf"
+                                                   itemLabel="#{pf.animal.nome} (ID: #{pf.id})"
+                                                   itemValue="#{pf}" />
                                 </p:selectOneMenu>
                                 <p:commandButton value="Filtrar"
-                                                 action="#{exameController.filtrarExamesPorProntuario}"
+                                                 action="#{exameController.filtrar}"
                                                  process="@this"
-                                                 update="tabela"
-                                                 styleClass="ui-button-raised" />
+                                                 update=":mainForm:tabs:tabela" />
                                 <p:commandButton value="Limpar Filtro"
-                                                 action="#{exameController.carregarExames}"
+                                                 action="#{exameController.limparFiltro}"
                                                  process="@this"
-                                                 update="tabela prontuarioFiltro"
-                                                 styleClass="ui-button-secondary" />
+                                                 update=":mainForm:tabs:tabela prontuarioFiltro" />
                             </div>
 
-                            <!-- Tabela -->
-                            <p:dataTable id="tabela"
-                                         value="#{exameController.exames}" var="exame"
+                            <p:dataTable id="tabela" value="#{exameController.exames}" var="e"
                                          emptyMessage="Nenhum registro de exame encontrado"
                                          paginator="true" rows="10"
                                          paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
@@ -152,119 +139,43 @@
                                          rowsPerPageTemplate="5,10,15">
 
                                 <p:column headerText="ID">
-                                    <h:outputText value="#{exame.id}" />
+                                    <h:outputText value="#{e.id}" />
                                 </p:column>
 
                                 <p:column headerText="Animal (Prontuário)">
-                                    <h:outputText value="#{exame.prontuario.animal.nome}" />
+                                    <h:outputText value="#{e.prontuario.animal.nome}" />
                                 </p:column>
 
                                 <p:column headerText="Tipo de Exame">
-                                    <h:outputText value="#{exame.tipoExame}" />
+                                    <h:outputText value="#{e.tipoExame}" />
                                 </p:column>
 
                                 <p:column headerText="Data do Exame">
-                                    <h:outputText value="#{exame.dataExame}">
+                                    <h:outputText value="#{e.dataExame}">
                                         <f:convertDateTime pattern="dd/MM/yyyy" />
                                     </h:outputText>
                                 </p:column>
 
                                 <p:column headerText="Veterinário">
-                                    <h:outputText value="#{exame.veterinario.nome}" />
+                                    <h:outputText value="#{e.veterinario.nome}" />
                                 </p:column>
 
-                                <p:column headerText="Ações" style="width:220px">
-                                    <!-- Editar -->
+                                <p:column headerText="Ações" style="width:150px">
                                     <p:commandButton icon="pi pi-pencil"
-                                                     action="#{exameController.prepararEditarExame(exame)}"
+                                                     action="#{exameController.prepararEdicao(e)}"
                                                      process="@this"
-                                                     update=":mainForm :mainForm:tabs"
-                                                     styleClass="edit-button rounded-button ui-button-success" />
-
-                                    <!-- Excluir -->
+                                                     update=":mainForm:tabs :mainForm:msgs :mainForm:growl" />
                                     <p:commandButton icon="pi pi-trash"
-                                                     action="#{exameController.excluirExame(exame)}"
+                                                     action="#{exameController.excluir(e)}"
                                                      process="@this"
-                                                     update="tabela growl"
-                                                     styleClass="ui-button-danger rounded-button"
-                                                     onclick="return confirm('Confirma a exclusão deste registro de exame?');" />
-
-                                    <!-- Ver resultado/observações -->
-                                    <p:commandButton icon="pi pi-search"
-                                                     process="@this"
-                                                     update=":resultadoForm"
-                                                     oncomplete="PF('resultadoDialog').show()"
-                                                     styleClass="ui-button-info rounded-button">
-                                        <f:setPropertyActionListener value="#{exame}" target="#{exameController.exame}" />
-                                    </p:commandButton>
+                                                     update=":mainForm:tabs:tabela :mainForm:msgs :mainForm:growl"
+                                                     onclick="return confirm('Confirma a exclusão deste registro?');" />
                                 </p:column>
                             </p:dataTable>
                         </div>
                     </p:tab>
                 </p:tabView>
             </h:form>
-
-            <!-- Diálogo para visualizar resultado/observações -->
-            <p:dialog id="resultadoDialogW" header="Resultado do Exame" widgetVar="resultadoDialog"
-                      modal="true" resizable="false" appendTo="@(body)">
-                <h:form id="resultadoForm">
-                    <div class="ui-fluid">
-                        <div class="p-field">
-                            <p:outputLabel value="Animal (Prontuário):" />
-                            <h:outputText value="#{exameController.exame.prontuario.animal.nome}" styleClass="font-bold" />
-                        </div>
-
-                        <div class="p-field">
-                            <p:outputLabel value="Tipo de Exame:" />
-                            <h:outputText value="#{exameController.exame.tipoExame}" styleClass="font-bold" />
-                        </div>
-
-                        <div class="p-field">
-                            <p:outputLabel value="Data do Exame:" />
-                            <h:outputText value="#{exameController.exame.dataExame}" styleClass="font-bold">
-                                <f:convertDateTime pattern="dd/MM/yyyy" />
-                            </h:outputText>
-                        </div>
-
-                        <div class="p-field">
-                            <p:outputLabel value="Veterinário:" />
-                            <h:outputText value="#{exameController.exame.veterinario.nome}" styleClass="font-bold" />
-                        </div>
-
-                        <div class="p-field">
-                            <p:outputLabel value="URL do Documento Anexo:" />
-                            <h:panelGroup>
-                                <h:outputLink value="#{exameController.exame.documentoAnexoUrl}"
-                                              target="_blank"
-                                              rendered="#{not empty exameController.exame.documentoAnexoUrl}">
-                                    <h:outputText value="Visualizar Documento" />
-                                </h:outputLink>
-                                <h:outputText value="Nenhum documento anexado."
-                                              rendered="#{empty exameController.exame.documentoAnexoUrl}" />
-                            </h:panelGroup>
-                        </div>
-
-                        <div class="p-field">
-                            <p:outputLabel value="Resultado:" />
-                            <p:inputTextarea value="#{exameController.exame.resultado}"
-                                             readonly="true" rows="10" cols="50" />
-                        </div>
-
-                        <div class="p-field">
-                            <p:outputLabel value="Observações:" />
-                            <p:inputTextarea value="#{exameController.exame.observacoes}"
-                                             readonly="true" rows="5" cols="50" />
-                        </div>
-
-                        <div class="p-field">
-                            <p:commandButton value="Fechar"
-                                             type="button"
-                                             onclick="PF('resultadoDialog').hide()"
-                                             styleClass="ui-button-secondary" />
-                        </div>
-                    </div>
-                </h:form>
-            </p:dialog>
         </div>
     </ui:define>
 </ui:composition>

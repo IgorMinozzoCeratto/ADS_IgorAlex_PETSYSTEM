@@ -30,189 +30,137 @@ public class VacinacaoController implements Serializable {
     private VacinacaoEntity vacinacao;
     private List<VacinacaoEntity> vacinacoes;
     private List<ProntuarioEntity> prontuarios;
-    private List<FuncionarioEntity> funcionariosAplicadores;
+    private List<FuncionarioEntity> funcionarios;
 
-    // Campos do FORMULÁRIO
-    private ProntuarioEntity prontuarioSelecionado;
-    private FuncionarioEntity funcionarioAplicadorSelecionado;
+    // filtro da aba "Histórico"
+    private ProntuarioEntity filtroProntuario;
 
-    // Campos de FILTRO (separados para não sobrescrever os do formulário)
-    private ProntuarioEntity prontuarioFiltroSelecionado;
-    private String filtroTipoVacina;
-
-    /** 0 = formulário, 1 = histórico (lista) */
-    private int tabIndex = 1;
+    /** 0=formulário, 1=histórico */
+    private int tabIndex = 0;
 
     @PostConstruct
     public void init() {
         vacinacao = new VacinacaoEntity();
+        vacinacao.setDataAplicacao(new Date());
         vacinacoes = new ArrayList<>();
         prontuarios = new ArrayList<>();
-        funcionariosAplicadores = new ArrayList<>();
+        funcionarios = new ArrayList<>();
         carregarProntuarios();
-        carregarFuncionariosAplicadores();
+        carregarFuncionarios();
         carregarVacinacoes();
     }
 
-    public void carregarProntuarios() {
+    public void prepararNova() {
+        vacinacao = new VacinacaoEntity();
+        vacinacao.setDataAplicacao(new Date());
+        tabIndex = 0;
+    }
+
+    public void prepararEdicao(VacinacaoEntity v) {
+        this.vacinacao = vacinacaoFacade.find(v.getId());
+        tabIndex = 0;
+    }
+
+    public void salvar() {
         try {
-            prontuarios = prontuarioFacade.findAll();
+            if (vacinacao.getProntuario() == null) {
+                addMsg(FacesMessage.SEVERITY_WARN, "Selecione um prontuário!");
+                return;
+            }
+            if (vacinacao.getFuncionarioAplicador() == null) {
+                addMsg(FacesMessage.SEVERITY_WARN, "Selecione um funcionário aplicador!");
+                return;
+            }
+
+            if (vacinacao.getId() == null) {
+                vacinacaoFacade.create(vacinacao);
+                addMsg(FacesMessage.SEVERITY_INFO, "Vacinação registrada com sucesso!");
+            } else {
+                vacinacaoFacade.edit(vacinacao);
+                addMsg(FacesMessage.SEVERITY_INFO, "Vacinação atualizada com sucesso!");
+            }
+            carregarVacinacoes();
+            tabIndex = 1; // volta pro histórico
+            prepararNova(); // limpa form
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar prontuários: " + e.getMessage());
+            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao salvar: " + e.getMessage());
         }
     }
 
-    public void carregarFuncionariosAplicadores() {
+    public void excluir(VacinacaoEntity v) {
         try {
-            funcionariosAplicadores = funcionarioFacade.findAll(); // filtre se tiver perfil próprio
+            vacinacaoFacade.remove(v);
+            addMsg(FacesMessage.SEVERITY_INFO, "Registro excluído!");
+            carregarVacinacoes();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar funcionários aplicadores: " + e.getMessage());
+            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao excluir: " + e.getMessage());
         }
+    }
+
+    public void filtrar() {
+        try {
+            if (filtroProntuario != null) {
+                // Se não houver método específico na facade, filtra em memória
+                List<VacinacaoEntity> todas = vacinacaoFacade.findAll();
+                List<VacinacaoEntity> filtradas = new ArrayList<>();
+                for (VacinacaoEntity v : todas) {
+                    if (v.getProntuario() != null && v.getProntuario().getId().equals(filtroProntuario.getId())) {
+                        filtradas.add(v);
+                    }
+                }
+                vacinacoes = filtradas;
+            } else {
+                carregarVacinacoes();
+            }
+        } catch (Exception e) {
+            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao filtrar: " + e.getMessage());
+        }
+    }
+
+    public void limparFiltro() {
+        filtroProntuario = null;
+        carregarVacinacoes();
     }
 
     public void carregarVacinacoes() {
         try {
             vacinacoes = vacinacaoFacade.findAll();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar vacinações: " + e.getMessage());
+            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao carregar vacinação: " + e.getMessage());
+            vacinacoes = new ArrayList<>();
         }
     }
 
-    // ====== FILTROS ======
-
-    public void filtrarVacinacoesPorProntuario() {
+    public void carregarProntuarios() {
         try {
-            if (prontuarioFiltroSelecionado != null) {
-                // vacinacoes = vacinacaoFacade.buscarPorProntuario(prontuarioFiltroSelecionado);
-                adicionarMensagemAviso("Filtro por prontuário ainda não implementado na fachada.");
-            } else {
-                carregarVacinacoes();
-            }
+            prontuarios = prontuarioFacade.findAll();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao filtrar vacinações por prontuário: " + e.getMessage());
+            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao carregar prontuários: " + e.getMessage());
+            prontuarios = new ArrayList<>();
         }
     }
 
-    public void filtrarVacinacoesPorTipo() {
+    public void carregarFuncionarios() {
         try {
-            if (filtroTipoVacina != null && !filtroTipoVacina.isEmpty()) {
-                // vacinacoes = vacinacaoFacade.buscarPorTipoVacina(filtroTipoVacina);
-                adicionarMensagemAviso("Filtro por tipo de vacina ainda não implementado na fachada.");
-            } else {
-                carregarVacinacoes();
-            }
+            funcionarios = funcionarioFacade.findAll();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao filtrar vacinações por tipo: " + e.getMessage());
+            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao carregar funcionários: " + e.getMessage());
+            funcionarios = new ArrayList<>();
         }
     }
 
-    // ====== FLUXO FORM ======
-
-    public void prepararNovaVacinacao() {
-        vacinacao = new VacinacaoEntity();
-        vacinacao.setDataAplicacao(new Date()); // padrão: hoje
-        prontuarioSelecionado = null;
-        funcionarioAplicadorSelecionado = null;
-        // NÃO zera prontuarioFiltroSelecionado
-        tabIndex = 0; // vai para o formulário
+    private void addMsg(FacesMessage.Severity s, String m) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(s, m, m));
     }
 
-    public void prepararEditarVacinacao(VacinacaoEntity vacinacaoSelecionada) {
-        try {
-            // carrega gerenciada pelo ID (evita detached/lazy)
-            this.vacinacao = vacinacaoFacade.find(vacinacaoSelecionada.getId());
-            this.prontuarioSelecionado = vacinacao.getProntuario();
-            this.funcionarioAplicadorSelecionado = vacinacao.getFuncionarioAplicador();
-            tabIndex = 0; // abre a aba do formulário
-        } catch (Exception e) {
-            adicionarMensagemErro("Erro ao preparar edição: " + e.getMessage());
-        }
-    }
-
-    public void salvarVacinacao() {
-        try {
-            if (prontuarioSelecionado == null) {
-                adicionarMensagemAviso("Selecione um prontuário!");
-                return;
-            }
-            if (funcionarioAplicadorSelecionado == null) {
-                adicionarMensagemAviso("Selecione um funcionário aplicador!");
-                return;
-            }
-
-            // sincroniza selecionados -> entity
-            vacinacao.setProntuario(prontuarioSelecionado);
-            vacinacao.setFuncionarioAplicador(funcionarioAplicadorSelecionado);
-
-            if (vacinacao.getId() == null) {
-                vacinacaoFacade.create(vacinacao);
-                adicionarMensagemInfo("Vacinação registrada com sucesso!");
-            } else {
-                vacinacaoFacade.edit(vacinacao);
-                adicionarMensagemInfo("Vacinação atualizada com sucesso!");
-            }
-
-            carregarVacinacoes();
-            tabIndex = 1;            // volta para a aba histórico
-            prepararNovaVacinacao();  // deixa pronto para novo registro (opcional)
-
-        } catch (Exception e) {
-            adicionarMensagemErro("Erro ao salvar vacinação: " + e.getMessage());
-        }
-    }
-
-    public void excluirVacinacao(VacinacaoEntity vacinacaoSelecionada) {
-        try {
-            vacinacaoFacade.remove(vacinacaoSelecionada);
-            adicionarMensagemInfo("Registro de vacinação excluído com sucesso!");
-            carregarVacinacoes();
-        } catch (Exception e) {
-            adicionarMensagemErro("Erro ao excluir vacinação: " + e.getMessage());
-        }
-    }
-
-    // ====== Getters/Setters ======
-
+    // Getters/Setters
     public VacinacaoEntity getVacinacao() { return vacinacao; }
     public void setVacinacao(VacinacaoEntity vacinacao) { this.vacinacao = vacinacao; }
-
     public List<VacinacaoEntity> getVacinacoes() { return vacinacoes; }
-    public void setVacinacoes(List<VacinacaoEntity> vacinacoes) { this.vacinacoes = vacinacoes; }
-
     public List<ProntuarioEntity> getProntuarios() { return prontuarios; }
-    public void setProntuarios(List<ProntuarioEntity> prontuarios) { this.prontuarios = prontuarios; }
-
-    public List<FuncionarioEntity> getFuncionariosAplicadores() { return funcionariosAplicadores; }
-    public void setFuncionariosAplicadores(List<FuncionarioEntity> funcionariosAplicadores) { this.funcionariosAplicadores = funcionariosAplicadores; }
-
-    // formulário
-    public ProntuarioEntity getProntuarioSelecionado() { return prontuarioSelecionado; }
-    public void setProntuarioSelecionado(ProntuarioEntity prontuarioSelecionado) { this.prontuarioSelecionado = prontuarioSelecionado; }
-
-    public FuncionarioEntity getFuncionarioAplicadorSelecionado() { return funcionarioAplicadorSelecionado; }
-    public void setFuncionarioAplicadorSelecionado(FuncionarioEntity funcionarioAplicadorSelecionado) { this.funcionarioAplicadorSelecionado = funcionarioAplicadorSelecionado; }
-
-    // filtro
-    public ProntuarioEntity getProntuarioFiltroSelecionado() { return prontuarioFiltroSelecionado; }
-    public void setProntuarioFiltroSelecionado(ProntuarioEntity prontuarioFiltroSelecionado) { this.prontuarioFiltroSelecionado = prontuarioFiltroSelecionado; }
-
-    public String getFiltroTipoVacina() { return filtroTipoVacina; }
-    public void setFiltroTipoVacina(String filtroTipoVacina) { this.filtroTipoVacina = filtroTipoVacina; }
-
+    public List<FuncionarioEntity> getFuncionarios() { return funcionarios; }
+    public ProntuarioEntity getFiltroProntuario() { return filtroProntuario; }
+    public void setFiltroProntuario(ProntuarioEntity filtroProntuario) { this.filtroProntuario = filtroProntuario; }
     public int getTabIndex() { return tabIndex; }
     public void setTabIndex(int tabIndex) { this.tabIndex = tabIndex; }
-
-    // ====== mensagens ======
-    private void adicionarMensagemInfo(String mensagem) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", mensagem));
-    }
-    private void adicionarMensagemErro(String mensagem) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", mensagem));
-    }
-    private void adicionarMensagemAviso(String mensagem) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Aviso", mensagem));
-    }
 }

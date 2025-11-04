@@ -1,152 +1,103 @@
-
 package br.upf.projetojfprimefaces.controller;
 
 import br.upf.projetojfprimefaces.entity.FinanceiroMovimentacaoEntity;
-import br.upf.projetojfprimefaces.entity.FuncionarioEntity;
 import br.upf.projetojfprimefaces.facade.FinanceiroMovimentacaoFacade;
-import br.upf.projetojfprimefaces.facade.FuncionarioFacade;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
-import jakarta.enterprise.context.SessionScoped;
+import jakarta.enterprise.context.Dependent;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Named(value = "financeiroMovimentacaoController")
-@SessionScoped
+@Named("financeiroMovimentacaoController")
+@ViewScoped
 public class FinanceiroMovimentacaoController implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @EJB
-    private FinanceiroMovimentacaoFacade financeiroMovimentacaoFacade;
-    @EJB
-    private FuncionarioFacade funcionarioFacade;
+    private FinanceiroMovimentacaoFacade movimentacaoFacade;
 
-    private FinanceiroMovimentacaoEntity movimentacao;
-    private List<FinanceiroMovimentacaoEntity> listaMovimentacoes;
-    private List<FuncionarioEntity> listaFuncionarios;
-    private FuncionarioEntity funcionarioResponsavelSelecionado;
+    /** Exigido pelo xhtml: value="#{financeiroMovimentacaoController.lista}" */
+    private List<FinanceiroMovimentacaoEntity> lista;
+
+    /** Item atualmente em edição/novo */
+    private FinanceiroMovimentacaoEntity selecionado;
 
     @PostConstruct
     public void init() {
-        movimentacao = new FinanceiroMovimentacaoEntity();
-        listaMovimentacoes = new ArrayList<>();
-        listaFuncionarios = new ArrayList<>();
-        carregarFuncionarios();
-        carregarMovimentacoes();
+        refreshLista();
+        novo();
     }
 
-    public void carregarFuncionarios() {
+    public void refreshLista() {
         try {
-            listaFuncionarios = funcionarioFacade.findAll();
+            lista = movimentacaoFacade.findAll();
+            if (lista == null) lista = new ArrayList<>();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar funcionários: " + e.getMessage());
+            lista = new ArrayList<>();
+            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao carregar lista", e.getMessage());
         }
     }
 
-    public void carregarMovimentacoes() {
-        try {
-            listaMovimentacoes = financeiroMovimentacaoFacade.findAll();
-        } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar movimentações financeiras: " + e.getMessage());
-        }
+    public void novo() {
+        selecionado = new FinanceiroMovimentacaoEntity();
     }
 
-    public String salvar() {
+    public void salvar() {
         try {
-            if (funcionarioResponsavelSelecionado == null) {
-                adicionarMensagemAviso("Selecione um funcionário responsável!");
-                return null;
-            }
-            movimentacao.setFuncionarioResponsavel(funcionarioResponsavelSelecionado);
-
-            if (movimentacao.getId() == null) {
-                financeiroMovimentacaoFacade.create(movimentacao);
-                adicionarMensagemInfo("Movimentação financeira registrada com sucesso!");
+            if (selecionado.getId() == null) {
+                movimentacaoFacade.create(selecionado);
+                addMsg(FacesMessage.SEVERITY_INFO, "Movimentação criada", null);
             } else {
-                financeiroMovimentacaoFacade.edit(movimentacao);
-                adicionarMensagemInfo("Movimentação financeira atualizada com sucesso!");
+                movimentacaoFacade.edit(selecionado);
+                addMsg(FacesMessage.SEVERITY_INFO, "Movimentação atualizada", null);
             }
-            movimentacao = new FinanceiroMovimentacaoEntity();
-            funcionarioResponsavelSelecionado = null;
-            listaMovimentacoes = null;
-            return "/financeiro/lista.xhtml?faces-redirect=true";
+            refreshLista();
+            novo();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao salvar movimentação financeira: " + e.getMessage());
-            return null;
+            addMsg(FacesMessage.SEVERITY_ERROR, "Falha ao salvar", e.getMessage());
         }
     }
 
-    public String editar(FinanceiroMovimentacaoEntity fm) {
-        this.movimentacao = fm;
-        this.funcionarioResponsavelSelecionado = fm.getFuncionarioResponsavel();
-        return "/financeiro/cadastro.xhtml?faces-redirect=true";
+    public void editar(FinanceiroMovimentacaoEntity item) {
+        if (item != null) {
+            this.selecionado = item;
+        }
     }
 
-    public String excluir(FinanceiroMovimentacaoEntity fm) {
+    public void excluir(FinanceiroMovimentacaoEntity item) {
         try {
-            financeiroMovimentacaoFacade.remove(fm);
-            listaMovimentacoes = null;
-            adicionarMensagemInfo("Movimentação financeira excluída com sucesso!");
-            return "/financeiro/lista.xhtml?faces-redirect=true";
+            movimentacaoFacade.remove(item);
+            addMsg(FacesMessage.SEVERITY_INFO, "Movimentação excluída", null);
+            refreshLista();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao excluir movimentação financeira: " + e.getMessage());
-            return null;
+            addMsg(FacesMessage.SEVERITY_ERROR, "Falha ao excluir", e.getMessage());
         }
     }
 
-    private void adicionarMensagemInfo(String mensagem) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", mensagem));
+    private void addMsg(FacesMessage.Severity sev, String sum, String det) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(sev, sum, det));
     }
 
-    private void adicionarMensagemErro(String mensagem) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", mensagem));
+    /* ===== GETTERS/SETTERS exigidos pelos xhtml ===== */
+
+    public List<FinanceiroMovimentacaoEntity> getLista() {
+        return lista;
     }
 
-    private void adicionarMensagemAviso(String mensagem) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Aviso", mensagem));
+    public FinanceiroMovimentacaoEntity getSelecionado() {
+        return selecionado;
     }
 
-    public FinanceiroMovimentacaoEntity getMovimentacao() {
-        return movimentacao;
-    }
-
-    public void setMovimentacao(FinanceiroMovimentacaoEntity movimentacao) {
-        this.movimentacao = movimentacao;
-    }
-
-    public List<FinanceiroMovimentacaoEntity> getListaMovimentacoes() {
-        if (listaMovimentacoes == null) {
-            carregarMovimentacoes();
-        }
-        return listaMovimentacoes;
-    }
-
-    public void setListaMovimentacoes(List<FinanceiroMovimentacaoEntity> listaMovimentacoes) {
-        this.listaMovimentacoes = listaMovimentacoes;
-    }
-
-    public List<FuncionarioEntity> getListaFuncionarios() {
-        return listaFuncionarios;
-    }
-
-    public void setListaFuncionarios(List<FuncionarioEntity> listaFuncionarios) {
-        this.listaFuncionarios = listaFuncionarios;
-    }
-
-    public FuncionarioEntity getFuncionarioResponsavelSelecionado() {
-        return funcionarioResponsavelSelecionado;
-    }
-
-    public void setFuncionarioResponsavelSelecionado(FuncionarioEntity funcionarioResponsavelSelecionado) {
-        this.funcionarioResponsavelSelecionado = funcionarioResponsavelSelecionado;
+    public void setSelecionado(FinanceiroMovimentacaoEntity selecionado) {
+        this.selecionado = selecionado;
     }
 }
-

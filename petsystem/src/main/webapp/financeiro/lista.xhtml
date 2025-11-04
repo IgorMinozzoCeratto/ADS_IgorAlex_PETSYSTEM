@@ -1,57 +1,68 @@
-
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:h="http://xmlns.jcp.org/jsf/html"
       xmlns:f="http://xmlns.jcp.org/jsf/core"
       xmlns:p="http://primefaces.org/ui">
 
-    <h:head>
-        <title>Lista de Movimentações Financeiras</title>
-    </h:head>
+<h:head>
+    <title>Financeiro - Movimentações</title>
+</h:head>
 
-    <h:body>
-        <p:panel header="Movimentações Financeiras">
-            <h:form>
-                <p:commandButton value="Nova Movimentação" action="cadastro.xhtml" icon="pi pi-plus" styleClass="ui-button-success"/>
-                <p:spacer height="10"/>
+<h:body>
+<h:form id="formFinanceiro">
+    <p:messages id="msgs" showDetail="true" closable="true" />
 
-                <p:dataTable value="#{financeiroMovimentacaoController.listaMovimentacoes}" var="mov" emptyMessage="Nenhuma movimentação encontrada.">
-                    <p:column headerText="ID">
-                        <h:outputText value="#{mov.id}"/>
-                    </p:column>
-                    <p:column headerText="Descrição">
-                        <h:outputText value="#{mov.descricao}"/>
-                    </p:column>
-                    <p:column headerText="Valor">
-                        <h:outputText value="#{mov.valor}">
-                            <f:convertNumber type="currency" currencySymbol="R$" locale="pt_BR"/>
-                        </h:outputText>
-                    </p:column>
-                    <p:column headerText="Tipo">
-                        <h:outputText value="#{mov.tipo eq 'R' ? 'Receita' : 'Despesa'}"/>
-                    </p:column>
-                    <p:column headerText="Data">
-                        <h:outputText value="#{mov.dataMovimentacao}">
-                            <f:convertDateTime pattern="dd/MM/yyyy HH:mm" timeZone="America/Sao_Paulo"/>
-                        </h:outputText>
-                    </p:column>
-                    <p:column headerText="Responsável">
-                        <h:outputText value="#{mov.funcionarioResponsavel.nome}"/>
-                    </p:column>
-                    <p:column headerText="Ações">
-                        <p:commandButton value="Editar" action="#{financeiroMovimentacaoController.editar(mov)}" icon="pi pi-pencil" styleClass="ui-button-info"/>
-                        <p:commandButton value="Excluir" action="#{financeiroMovimentacaoController.excluir(mov)}" icon="pi pi-trash" styleClass="ui-button-danger" update="@form">
-                            <p:confirm header="Confirmação" message="Deseja realmente excluir esta movimentação?" icon="pi pi-exclamation-triangle"/>
-                        </p:commandButton>
-                    </p:column>
-                </p:dataTable>
+    <p:toolbar styleClass="mb-3">
+        <p:toolbarGroup>
+            <p:commandButton value="Recarregar" icon="pi pi-refresh"
+                             actionListener="#{financeiroMovimentacaoController.carregarLista}"
+                             update="tabela msgs"/>
+        </p:toolbarGroup>
+    </p:toolbar>
 
-                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
-                    <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
-                    <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes"/>
-                </p:confirmDialog>
-            </h:form>
-        </p:panel>
-    </h:body>
+    <!-- CORRIGIDO: value -> lista -->
+    <p:dataTable id="tabela"
+                 value="#{financeiroMovimentacaoController.lista}"
+                 var="m"
+                 paginator="true" rows="10"
+                 emptyMessage="Nenhuma movimentação encontrada."
+                 styleClass="p-datatable-sm">
+
+        <p:column headerText="ID" sortBy="#{m.id}">
+            <h:outputText value="#{m.id}" />
+        </p:column>
+
+        <p:column headerText="Data" sortBy="#{m.data}">
+            <h:outputText value="#{m.data}">
+                <f:convertDateTime pattern="dd/MM/yyyy" />
+            </h:outputText>
+        </p:column>
+
+        <p:column headerText="Descrição" sortBy="#{m.descricao}">
+            <h:outputText value="#{m.descricao}" />
+        </p:column>
+
+        <p:column headerText="Tipo" sortBy="#{m.tipo}">
+            <h:outputText value="#{m.tipo}" />
+        </p:column>
+
+        <p:column headerText="Valor" sortBy="#{m.valor}">
+            <h:outputText value="#{m.valor}">
+                <f:convertNumber type="currency" currencySymbol="R$ " />
+            </h:outputText>
+        </p:column>
+
+        <p:column headerText="Ações" style="width: 180px; text-align:center">
+            <p:commandButton icon="pi pi-pencil" title="Editar"
+                             actionListener="#{financeiroMovimentacaoController.editar(m)}"
+                             update="msgs" />
+            <p:spacer width="6" />
+            <p:commandButton icon="pi pi-trash" title="Excluir"
+                             actionListener="#{financeiroMovimentacaoController.excluir(m)}"
+                             update="tabela msgs"
+                             onclick="return confirm('Confirma excluir?');" />
+        </p:column>
+    </p:dataTable>
+</h:form>
+</h:body>
 </html>
-

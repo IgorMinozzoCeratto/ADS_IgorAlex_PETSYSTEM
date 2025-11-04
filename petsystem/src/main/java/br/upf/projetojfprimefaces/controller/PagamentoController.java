@@ -1,159 +1,117 @@
-
 package br.upf.projetojfprimefaces.controller;
 
-import br.upf.projetojfprimefaces.entity.ConsultaEntity;
 import br.upf.projetojfprimefaces.entity.FinanceiroMovimentacaoEntity;
 import br.upf.projetojfprimefaces.entity.PagamentoEntity;
-import br.upf.projetojfprimefaces.entity.TutorEntity;
-import br.upf.projetojfprimefaces.facade.ConsultaFacade;
 import br.upf.projetojfprimefaces.facade.FinanceiroMovimentacaoFacade;
 import br.upf.projetojfprimefaces.facade.PagamentoFacade;
-import br.upf.projetojfprimefaces.facade.TutorFacade;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
-import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-@Named(value = "pagamentoController")
-@SessionScoped
+@Named("pagamentoController")
+@ViewScoped
 public class PagamentoController implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @EJB
     private PagamentoFacade pagamentoFacade;
-    @EJB
-    private TutorFacade tutorFacade;
-    @EJB
-    private FinanceiroMovimentacaoFacade financeiroMovimentacaoFacade;
-    @EJB
-    private ConsultaFacade consultaFacade;
 
+    @EJB
+    private FinanceiroMovimentacaoFacade movimentacaoFacade;
+
+    /** Lista de pagamentos para a tela de cadastro/listagem (se houver) */
+    private List<PagamentoEntity> lista;
+
+    /** Pagamento em edição */
     private PagamentoEntity pagamento;
-    private List<PagamentoEntity> listaPagamentos;
-    private List<TutorEntity> listaTutores;
-    private List<FinanceiroMovimentacaoEntity> listaMovimentacoes;
-    private List<ConsultaEntity> listaConsultas;
-    private TutorEntity tutorSelecionado;
+
+    /** Exigido pelo xhtml: value="#{pagamentoController.movimentacaoSelecionada}" em <p:selectOneMenu> */
     private FinanceiroMovimentacaoEntity movimentacaoSelecionada;
-    private ConsultaEntity consultaSelecionada;
+
+    /** Para popular o selectOneMenu de movimentações */
+    private List<FinanceiroMovimentacaoEntity> movimentacoes;
 
     @PostConstruct
     public void init() {
+        refreshListas();
+        novo();
+    }
+
+    public void refreshListas() {
+        try {
+            lista = pagamentoFacade.findAll();
+            if (lista == null) lista = new ArrayList<>();
+
+            movimentacoes = movimentacaoFacade.findAll();
+            if (movimentacoes == null) movimentacoes = new ArrayList<>();
+        } catch (Exception e) {
+            lista = new ArrayList<>();
+            movimentacoes = new ArrayList<>();
+            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao carregar dados", e.getMessage());
+        }
+    }
+
+    public void novo() {
         pagamento = new PagamentoEntity();
-        listaPagamentos = new ArrayList<>();
-        listaTutores = new ArrayList<>();
-        listaMovimentacoes = new ArrayList<>();
-        listaConsultas = new ArrayList<>();
-        carregarTutores();
-        carregarMovimentacoes();
-        carregarConsultas();
-        carregarPagamentos();
+        movimentacaoSelecionada = null;
     }
 
-    public void carregarTutores() {
+    public void salvar() {
         try {
-            listaTutores = tutorFacade.findAll();
-        } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar tutores: " + e.getMessage());
-        }
-    }
-
-    public void carregarMovimentacoes() {
-        try {
-            listaMovimentacoes = financeiroMovimentacaoFacade.findAll();
-        } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar movimentações financeiras: " + e.getMessage());
-        }
-    }
-
-    public void carregarConsultas() {
-        try {
-            listaConsultas = consultaFacade.findAll();
-        } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar consultas: " + e.getMessage());
-        }
-    }
-
-    public void carregarPagamentos() {
-        try {
-            listaPagamentos = pagamentoFacade.findAll();
-        } catch (Exception e) {
-            adicionarMensagemErro("Erro ao carregar pagamentos: " + e.getMessage());
-        }
-    }
-
-    public String salvar() {
-        try {
-            if (tutorSelecionado == null) {
-                adicionarMensagemAviso("Selecione um tutor!");
-                return null;
-            }
-            if (movimentacaoSelecionada == null) {
-                adicionarMensagemAviso("Selecione uma movimentação financeira!");
-                return null;
-            }
-            pagamento.setTutor(tutorSelecionado);
+            // Garanta que o relacionamento seja setado antes de persistir
+            // Ajuste o setter conforme o nome do atributo em PagamentoEntity (ex.: setMovimentacao, setFinanceiroMovimentacao, etc.)
             pagamento.setMovimentacao(movimentacaoSelecionada);
-            pagamento.setConsulta(consultaSelecionada); // Pode ser nulo
 
             if (pagamento.getId() == null) {
                 pagamentoFacade.create(pagamento);
-                adicionarMensagemInfo("Pagamento registrado com sucesso!");
+                addMsg(FacesMessage.SEVERITY_INFO, "Pagamento criado", null);
             } else {
                 pagamentoFacade.edit(pagamento);
-                adicionarMensagemInfo("Pagamento atualizado com sucesso!");
+                addMsg(FacesMessage.SEVERITY_INFO, "Pagamento atualizado", null);
             }
-            pagamento = new PagamentoEntity();
-            tutorSelecionado = null;
-            movimentacaoSelecionada = null;
-            consultaSelecionada = null;
-            listaPagamentos = null;
-            return "/pagamento/lista.xhtml?faces-redirect=true";
+            refreshListas();
+            novo();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao salvar pagamento: " + e.getMessage());
-            return null;
+            addMsg(FacesMessage.SEVERITY_ERROR, "Falha ao salvar pagamento", e.getMessage());
         }
     }
 
-    public String editar(PagamentoEntity p) {
-        this.pagamento = p;
-        this.tutorSelecionado = p.getTutor();
-        this.movimentacaoSelecionada = p.getMovimentacao();
-        this.consultaSelecionada = p.getConsulta();
-        return "/pagamento/cadastro.xhtml?faces-redirect=true";
+    public void editar(PagamentoEntity item) {
+        if (item != null) {
+            this.pagamento = item;
+            // alinha o select com a movimentação já vinculada
+            this.movimentacaoSelecionada = item.getMovimentacao();
+        }
     }
 
-    public String excluir(PagamentoEntity p) {
+    public void excluir(PagamentoEntity item) {
         try {
-            pagamentoFacade.remove(p);
-            listaPagamentos = null;
-            adicionarMensagemInfo("Pagamento excluído com sucesso!");
-            return "/pagamento/lista.xhtml?faces-redirect=true";
+            pagamentoFacade.remove(item);
+            addMsg(FacesMessage.SEVERITY_INFO, "Pagamento excluído", null);
+            refreshListas();
         } catch (Exception e) {
-            adicionarMensagemErro("Erro ao excluir pagamento: " + e.getMessage());
-            return null;
+            addMsg(FacesMessage.SEVERITY_ERROR, "Falha ao excluir", e.getMessage());
         }
     }
 
-    private void adicionarMensagemInfo(String mensagem) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_INFO, "Sucesso", mensagem));
+    private void addMsg(FacesMessage.Severity sev, String sum, String det) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(sev, sum, det));
     }
 
-    private void adicionarMensagemErro(String mensagem) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", mensagem));
-    }
+    /* ===== GETTERS/SETTERS exigidos pelos xhtml ===== */
 
-    private void adicionarMensagemAviso(String mensagem) {
-        FacesContext.getCurrentInstance().addMessage(null,
-                new FacesMessage(FacesMessage.SEVERITY_WARN, "Aviso", mensagem));
+    public List<PagamentoEntity> getLista() {
+        return lista;
     }
 
     public PagamentoEntity getPagamento() {
@@ -164,49 +122,7 @@ public class PagamentoController implements Serializable {
         this.pagamento = pagamento;
     }
 
-    public List<PagamentoEntity> getListaPagamentos() {
-        if (listaPagamentos == null) {
-            carregarPagamentos();
-        }
-        return listaPagamentos;
-    }
-
-    public void setListaPagamentos(List<PagamentoEntity> listaPagamentos) {
-        this.listaPagamentos = listaPagamentos;
-    }
-
-    public List<TutorEntity> getListaTutores() {
-        return listaTutores;
-    }
-
-    public void setListaTutores(List<TutorEntity> listaTutores) {
-        this.listaTutores = listaTutores;
-    }
-
-    public List<FinanceiroMovimentacaoEntity> getListaMovimentacoes() {
-        return listaMovimentacoes;
-    }
-
-    public void setListaMovimentacoes(List<FinanceiroMovimentacaoEntity> listaMovimentacoes) {
-        this.listaMovimentacoes = listaMovimentacoes;
-    }
-
-    public List<ConsultaEntity> getListaConsultas() {
-        return listaConsultas;
-    }
-
-    public void setListaConsultas(List<ConsultaEntity> listaConsultas) {
-        this.listaConsultas = listaConsultas;
-    }
-
-    public TutorEntity getTutorSelecionado() {
-        return tutorSelecionado;
-    }
-
-    public void setTutorSelecionado(TutorEntity tutorSelecionado) {
-        this.tutorSelecionado = tutorSelecionado;
-    }
-
+    /** Necessário pelo xhtml @45,74 (selectOneMenu) */
     public FinanceiroMovimentacaoEntity getMovimentacaoSelecionada() {
         return movimentacaoSelecionada;
     }
@@ -215,12 +131,8 @@ public class PagamentoController implements Serializable {
         this.movimentacaoSelecionada = movimentacaoSelecionada;
     }
 
-    public ConsultaEntity getConsultaSelecionada() {
-        return consultaSelecionada;
-    }
-
-    public void setConsultaSelecionada(ConsultaEntity consultaSelecionada) {
-        this.consultaSelecionada = consultaSelecionada;
+    /** Para popular o <p:selectOneMenu> das movimentações */
+    public List<FinanceiroMovimentacaoEntity> getMovimentacoes() {
+        return movimentacoes;
     }
 }
-

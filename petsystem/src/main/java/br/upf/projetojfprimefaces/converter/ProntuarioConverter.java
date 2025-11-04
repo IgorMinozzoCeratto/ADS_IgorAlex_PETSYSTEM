@@ -2,16 +2,16 @@ package br.upf.projetojfprimefaces.converter;
 
 import br.upf.projetojfprimefaces.entity.ProntuarioEntity;
 import br.upf.projetojfprimefaces.facade.ProntuarioFacade;
-import jakarta.ejb.EJB;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.convert.Converter;
 import jakarta.faces.convert.FacesConverter;
+import jakarta.inject.Inject;
 
 @FacesConverter(value = "prontuarioConverter", managed = true)
 public class ProntuarioConverter implements Converter<ProntuarioEntity> {
 
-    @EJB
+    @Inject
     private ProntuarioFacade prontuarioFacade;
 
     @Override
@@ -21,7 +21,6 @@ public class ProntuarioConverter implements Converter<ProntuarioEntity> {
             Integer id = Integer.valueOf(value);
             return prontuarioFacade.find(id);
         } catch (NumberFormatException e) {
-            // valor não-numérico vindo do select
             return null;
         }
     }
