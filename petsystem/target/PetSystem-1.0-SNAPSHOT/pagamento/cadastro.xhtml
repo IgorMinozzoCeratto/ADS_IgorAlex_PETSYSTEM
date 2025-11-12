@@ -5,121 +5,76 @@
       xmlns:p="http://primefaces.org/ui">
 
 <h:head>
-    <title>Pagamentos</title>
-    <h:outputStylesheet library="manhattan-layout" name="css/primeflex.min.css"/>
+    <title>Cadastro de Pagamento</title>
 </h:head>
 
 <h:body>
-<h:form id="frmPag">
+<h:form id="form">
+    <p:growl id="msgs" showDetail="true" />
 
-    <p:growl id="msgs" showDetail="true" life="4000"/>
+    <p:panel header="Cadastro de Pagamento">
+        <p:panelGrid columns="2" layout="grid" styleClass="p-fluid"
+                     columnClasses="ui-g-12 ui-md-3, ui-g-12 ui-md-9">
 
-    <p:toolbar styleClass="mb-3">
-        <p:toolbarGroup>
-            <p:commandButton value="Novo" icon="pi pi-plus"
-                             process="@this"
-                             update=":dlgPag"
-                             oncomplete="PF('dlgPag').show()"
-                             actionListener="#{pagamentoController.novo}"/>
-            <p:commandButton value="Atualizar" icon="pi pi-refresh" styleClass="ml-2"
-                             process="@this"
-                             update="tbl"/>
-        </p:toolbarGroup>
-    </p:toolbar>
+            <p:outputLabel for="tutor" value="Tutor" />
+            <p:selectOneMenu id="tutor"
+                             value="#{pagamentoController.pagamento.tutor}"
+                             converter="tutorConverter"
+                             filter="true" filterMatchMode="contains"
+                             required="true" requiredMessage="Tutor é obrigatório.">
+                <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true" />
+                <f:selectItems value="#{pagamentoController.tutores}" var="t"
+                               itemLabel="#{t.nome}" itemValue="#{t}" />
+            </p:selectOneMenu>
 
-    <p:dataTable id="tbl"
-                 value="#{pagamentoController.lista}"
-                 var="pgt"
-                 paginator="true" rows="10"
-                 stripedRows="true" styleClass="w-full">
-
-        <p:column headerText="ID" style="width:100px" sortBy="#{pgt.id}">
-            <h:outputText value="#{pgt.id}"/>
-        </p:column>
-
-        <p:column headerText="Movimentação" sortBy="#{pgt.movimentacao.descricao}">
-            <h:outputText value="#{pgt.movimentacao != null ? pgt.movimentacao.descricao : '-'}"/>
-        </p:column>
-
-        <p:column headerText="Data" style="width:180px" sortBy="#{pgt.dataPagamento}">
-            <h:outputText value="#{pgt.dataPagamento}">
-                <f:convertDateTime pattern="dd/MM/yyyy"/>
-            </h:outputText>
-        </p:column>
-
-        <p:column headerText="Valor" style="width:160px" sortBy="#{pgt.valor}">
-            <h:outputText value="#{pgt.valor}">
-                <f:convertNumber type="currency" currencySymbol="R$ " minFractionDigits="2"/>
-            </h:outputText>
-        </p:column>
-
-        <p:column headerText="Forma" style="width:160px" sortBy="#{pgt.forma}">
-            <h:outputText value="#{pgt.forma}"/>
-        </p:column>
-
-        <p:column headerText="Ações" style="width:220px; text-align:center">
-            <p:commandButton icon="pi pi-pencil" title="Editar"
-                             actionListener="#{pagamentoController.editar(pgt)}"
-                             update=":dlgPag" oncomplete="PF('dlgPag').show()"
-                             styleClass="p-button-text p-button-sm"/>
-            <p:commandButton icon="pi pi-trash" title="Excluir"
-                             actionListener="#{pagamentoController.excluir(pgt)}"
-                             update="@form"
-                             styleClass="p-button-danger p-button-text p-button-sm"
-                             onclick="return confirm('Excluir este pagamento?');"/>
-        </p:column>
-    </p:dataTable>
-
-    <!-- Diálogo de cadastro/edição -->
-    <p:dialog id="dlgPag" header="Pagamento" widgetVar="dlgPag" modal="true" responsive="true" closable="true" width="540">
-        <h:panelGrid columns="2" columnClasses="w-3, w-9" styleClass="p-fluid" cellpadding="6">
-
-            <h:outputLabel for="mov" value="Movimentação"/>
+            <p:outputLabel for="mov" value="Movimentação Financeira" />
             <p:selectOneMenu id="mov"
-                             value="#{pagamentoController.movimentacaoSelecionada}"
-                             required="true"
+                             value="#{pagamentoController.pagamento.movimentacao}"
                              converter="financeiroMovimentacaoConverter"
-                             styleClass="w-full">
-                <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
-                <f:selectItems value="#{pagamentoController.movimentacoes}"
-                               var="mv"
-                               itemValue="#{mv}"
-                               itemLabel="#{mv.descricao}"/>
+                             filter="true" filterMatchMode="contains"
+                             required="true" requiredMessage="Movimentação é obrigatória.">
+                <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true" />
+                <f:selectItems value="#{pagamentoController.movimentacoes}" var="m"
+                               itemLabel="#{m.descricao}" itemValue="#{m}" />
             </p:selectOneMenu>
 
-            <h:outputLabel for="dt" value="Data do Pagamento"/>
-            <p:datePicker id="dt" pattern="dd/MM/yyyy" showIcon="true"
-                          value="#{pagamentoController.pagamento.dataPagamento}" required="true"/>
+            <p:outputLabel for="valorPago" value="Valor Pago" />
+            <p:inputNumber id="valorPago"
+                           value="#{pagamentoController.pagamento.valorPago}"
+                           required="true" requiredMessage="Valor pago é obrigatório."
+                           decimalPlaces="2" thousandSeparator="." decimalSeparator="," />
 
-            <h:outputLabel for="vl" value="Valor"/>
-            <p:inputNumber id="vl" decimalPlaces="2" minValue="0"
-                           value="#{pagamentoController.pagamento.valor}" required="true"/>
+            <p:outputLabel for="data" value="Data do Pagamento" />
+            <p:datePicker id="data"
+                          value="#{pagamentoController.pagamento.dataPagamento}"
+                          pattern="dd/MM/yyyy" showIcon="true"
+                          required="true" requiredMessage="Data é obrigatória." />
 
-            <h:outputLabel for="forma" value="Forma"/>
-            <p:selectOneMenu id="forma" value="#{pagamentoController.pagamento.forma}" required="true">
-                <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
-                <f:selectItem itemLabel="DINHEIRO" itemValue="DINHEIRO"/>
-                <f:selectItem itemLabel="CARTAO" itemValue="CARTAO"/>
-                <f:selectItem itemLabel="PIX" itemValue="PIX"/>
-                <f:selectItem itemLabel="BOLETO" itemValue="BOLETO"/>
+            <p:outputLabel for="forma" value="Forma de Pagamento" />
+            <p:selectOneMenu id="forma"
+                             value="#{pagamentoController.pagamento.formaPagamento}"
+                             required="true" requiredMessage="Forma de pagamento é obrigatória.">
+                <f:selectItem itemLabel="Selecione..." itemValue="" noSelectionOption="true" />
+                <f:selectItem itemLabel="Dinheiro" itemValue="DINHEIRO" />
+                <f:selectItem itemLabel="Cartão de Crédito" itemValue="CREDITO" />
+                <f:selectItem itemLabel="Cartão de Débito" itemValue="DEBITO" />
+                <f:selectItem itemLabel="PIX" itemValue="PIX" />
             </p:selectOneMenu>
 
-            <h:outputLabel for="obs" value="Observações"/>
-            <p:inputTextarea id="obs" rows="3" autoResize="true" maxlength="255"
-                             value="#{pagamentoController.pagamento.observacao}"/>
+        </p:panelGrid>
 
-        </h:panelGrid>
-
-        <f:facet name="footer">
-            <p:commandButton value="Salvar" icon="pi pi-check" styleClass="mr-2"
-                             actionListener="#{pagamentoController.salvar}"
-                             update=":frmPag:msgs :frmPag:tbl"
-                             oncomplete="if (!args.validationFailed) PF('dlgPag').hide();"/>
-            <p:commandButton value="Cancelar" icon="pi pi-times" type="button"
-                             onclick="PF('dlgPag').hide()"/>
-        </f:facet>
-    </p:dialog>
-
+        <div class="p-mt-3">
+            <p:commandButton value="Salvar"
+                             action="#{pagamentoController.salvar}"
+                             update=":form:msgs"
+                             icon="pi pi-check"
+                             styleClass="p-button-success p-mr-2" />
+            <p:button value="Voltar para a lista"
+                      outcome="/pagamento/lista.xhtml?faces-redirect=true"
+                      icon="pi pi-arrow-left"
+                      styleClass="p-button p-button-secondary" />
+        </div>
+    </p:panel>
 </h:form>
 </h:body>
 </html>

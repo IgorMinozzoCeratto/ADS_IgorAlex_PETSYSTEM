@@ -1,103 +1,121 @@
 package br.upf.projetojfprimefaces.controller;
 
 import br.upf.projetojfprimefaces.entity.FinanceiroMovimentacaoEntity;
+import br.upf.projetojfprimefaces.entity.FuncionarioEntity;
 import br.upf.projetojfprimefaces.facade.FinanceiroMovimentacaoFacade;
+import br.upf.projetojfprimefaces.facade.FuncionarioFacade;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
-import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 
-import java.io.Serial;
 import java.io.Serializable;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-@Named("financeiroMovimentacaoController")
-@ViewScoped
+@Named
+@SessionScoped
 public class FinanceiroMovimentacaoController implements Serializable {
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
     @EJB
-    private FinanceiroMovimentacaoFacade movimentacaoFacade;
+    private FinanceiroMovimentacaoFacade facade;
 
-    /** Exigido pelo xhtml: value="#{financeiroMovimentacaoController.lista}" */
-    private List<FinanceiroMovimentacaoEntity> lista;
+    @EJB
+    private FuncionarioFacade funcionarioFacade;
 
-    /** Item atualmente em edição/novo */
-    private FinanceiroMovimentacaoEntity selecionado;
+    private FinanceiroMovimentacaoEntity movimentacao;
+    private List<FinanceiroMovimentacaoEntity> lista = new ArrayList<>();
+    private List<FuncionarioEntity> funcionarios = new ArrayList<>();
 
     @PostConstruct
     public void init() {
-        refreshLista();
-        novo();
-    }
-
-    public void refreshLista() {
-        try {
-            lista = movimentacaoFacade.findAll();
-            if (lista == null) lista = new ArrayList<>();
-        } catch (Exception e) {
-            lista = new ArrayList<>();
-            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao carregar lista", e.getMessage());
+        recarregarLista();
+        carregarFuncionarios();
+        if (movimentacao == null) {
+            prepararNovo();
         }
     }
 
-    public void novo() {
-        selecionado = new FinanceiroMovimentacaoEntity();
+    private void prepararNovo() {
+        movimentacao = new FinanceiroMovimentacaoEntity();
+        // define agora como padrão
+        movimentacao.setDataMovimentacao(OffsetDateTime.now());
     }
 
-    public void salvar() {
+    public void recarregarLista() {
+        lista = facade.findAll();
+    }
+
+    public void carregarFuncionarios() {
+        funcionarios = funcionarioFacade.findAll();
+    }
+
+    public String novo() {
+        prepararNovo();
+        return "/financeiro/cadastro.xhtml?faces-redirect=true";
+    }
+
+    public String editar(FinanceiroMovimentacaoEntity m) {
+        this.movimentacao = (m != null) ? m : new FinanceiroMovimentacaoEntity();
+        if (this.movimentacao.getDataMovimentacao() == null) {
+            this.movimentacao.setDataMovimentacao(OffsetDateTime.now());
+        }
+        return "/financeiro/cadastro.xhtml?faces-redirect=true";
+    }
+
+    public void excluir(FinanceiroMovimentacaoEntity m) {
         try {
-            if (selecionado.getId() == null) {
-                movimentacaoFacade.create(selecionado);
-                addMsg(FacesMessage.SEVERITY_INFO, "Movimentação criada", null);
+            facade.remove(m);
+            recarregarLista();
+            addInfo("Excluído com sucesso.");
+        } catch (Exception e) {
+            addErro("Erro ao excluir: " + e.getMessage());
+        }
+    }
+
+    public String salvar() {
+        try {
+            if (movimentacao.getId() == null) {
+                facade.create(movimentacao);
+                addInfo("Movimentação criada com sucesso.");
             } else {
-                movimentacaoFacade.edit(selecionado);
-                addMsg(FacesMessage.SEVERITY_INFO, "Movimentação atualizada", null);
+                facade.edit(movimentacao);
+                addInfo("Movimentação atualizada com sucesso.");
             }
-            refreshLista();
-            novo();
+            recarregarLista();
+            return "/financeiro/lista.xhtml?faces-redirect=true";
         } catch (Exception e) {
-            addMsg(FacesMessage.SEVERITY_ERROR, "Falha ao salvar", e.getMessage());
+            addErro("Erro ao salvar: " + e.getMessage());
+            return null;
         }
     }
 
-    public void editar(FinanceiroMovimentacaoEntity item) {
-        if (item != null) {
-            this.selecionado = item;
+    public FinanceiroMovimentacaoEntity getMovimentacao() {
+        if (movimentacao == null) prepararNovo();
+        return movimentacao;
+    }
+    public void setMovimentacao(FinanceiroMovimentacaoEntity movimentacao) {
+        this.movimentacao = movimentacao;
+        if (this.movimentacao != null && this.movimentacao.getDataMovimentacao() == null) {
+            this.movimentacao.setDataMovimentacao(OffsetDateTime.now());
         }
     }
 
-    public void excluir(FinanceiroMovimentacaoEntity item) {
-        try {
-            movimentacaoFacade.remove(item);
-            addMsg(FacesMessage.SEVERITY_INFO, "Movimentação excluída", null);
-            refreshLista();
-        } catch (Exception e) {
-            addMsg(FacesMessage.SEVERITY_ERROR, "Falha ao excluir", e.getMessage());
-        }
+    public List<FinanceiroMovimentacaoEntity> getLista() { return lista; }
+    public void setLista(List<FinanceiroMovimentacaoEntity> lista) { this.lista = lista; }
+    public List<FuncionarioEntity> getFuncionarios() { return funcionarios; }
+
+    private void addInfo(String msg) {
+        FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Info", msg));
     }
-
-    private void addMsg(FacesMessage.Severity sev, String sum, String det) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(sev, sum, det));
-    }
-
-    /* ===== GETTERS/SETTERS exigidos pelos xhtml ===== */
-
-    public List<FinanceiroMovimentacaoEntity> getLista() {
-        return lista;
-    }
-
-    public FinanceiroMovimentacaoEntity getSelecionado() {
-        return selecionado;
-    }
-
-    public void setSelecionado(FinanceiroMovimentacaoEntity selecionado) {
-        this.selecionado = selecionado;
+    private void addErro(String msg) {
+        FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Erro", msg));
     }
 }

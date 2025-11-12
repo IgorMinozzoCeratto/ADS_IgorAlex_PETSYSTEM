@@ -1,4 +1,3 @@
-
 package br.upf.projetojfprimefaces.entity;
 
 import jakarta.persistence.Column;
@@ -9,12 +8,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 @Entity
@@ -39,7 +41,7 @@ public class FinanceiroMovimentacaoEntity implements Serializable {
     @NotBlank(message = "O tipo de movimentação não pode ser vazio.")
     @Size(max = 1, message = "O tipo de movimentação deve ser 'R' ou 'D'.")
     @Column(name = "tipo", nullable = false, length = 1)
-    private String tipo; // 'R' para Receita, 'D' para Despesa
+    private String tipo; // 'R' = Receita, 'D' = Despesa
 
     @NotNull(message = "A data de movimentação não pode ser nula.")
     @Column(name = "data_movimentacao", nullable = false, columnDefinition = "TIMESTAMP WITH TIME ZONE")
@@ -50,10 +52,10 @@ public class FinanceiroMovimentacaoEntity implements Serializable {
     @ManyToOne(optional = false)
     private FuncionarioEntity funcionarioResponsavel;
 
-    public FinanceiroMovimentacaoEntity() {
-    }
+    public FinanceiroMovimentacaoEntity() {}
 
-    public FinanceiroMovimentacaoEntity(Integer id, String descricao, BigDecimal valor, String tipo, OffsetDateTime dataMovimentacao, FuncionarioEntity funcionarioResponsavel) {
+    public FinanceiroMovimentacaoEntity(Integer id, String descricao, BigDecimal valor, String tipo,
+                                        OffsetDateTime dataMovimentacao, FuncionarioEntity funcionarioResponsavel) {
         this.id = id;
         this.descricao = descricao;
         this.valor = valor;
@@ -62,58 +64,51 @@ public class FinanceiroMovimentacaoEntity implements Serializable {
         this.funcionarioResponsavel = funcionarioResponsavel;
     }
 
-    public Integer getId() {
-        return id;
+    // -------- getters/setters padrão --------
+    public Integer getId() { return id; }
+    public void setId(Integer id) { this.id = id; }
+
+    public String getDescricao() { return descricao; }
+    public void setDescricao(String descricao) { this.descricao = descricao; }
+
+    public BigDecimal getValor() { return valor; }
+    public void setValor(BigDecimal valor) { this.valor = valor; }
+
+    public String getTipo() { return tipo; }
+    public void setTipo(String tipo) { this.tipo = tipo; }
+
+    public OffsetDateTime getDataMovimentacao() { return dataMovimentacao; }
+    public void setDataMovimentacao(OffsetDateTime dataMovimentacao) { this.dataMovimentacao = dataMovimentacao; }
+
+    public FuncionarioEntity getFuncionarioResponsavel() { return funcionarioResponsavel; }
+    public void setFuncionarioResponsavel(FuncionarioEntity funcionarioResponsavel) { this.funcionarioResponsavel = funcionarioResponsavel; }
+
+    // -------- helpers para UI --------
+    @Transient
+    public LocalDateTime getDataMovimentacaoLocal() {
+        return dataMovimentacao != null ? dataMovimentacao.toLocalDateTime() : null;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    @Transient
+    public void setDataMovimentacaoLocal(LocalDateTime ldt) {
+        if (ldt == null) {
+            this.dataMovimentacao = null;
+        } else {
+            // mantém o offset local atual (ex.: America/Sao_Paulo)
+            this.dataMovimentacao = ldt.atOffset(OffsetDateTime.now().getOffset());
+        }
     }
 
-    public String getDescricao() {
-        return descricao;
+    @Transient
+    public String getDataMovimentacaoFmt() {
+        return dataMovimentacao != null
+                ? dataMovimentacao.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))
+                : "";
     }
 
-    public void setDescricao(String descricao) {
-        this.descricao = descricao;
-    }
-
-    public BigDecimal getValor() {
-        return valor;
-    }
-
-    public void setValor(BigDecimal valor) {
-        this.valor = valor;
-    }
-
-    public String getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
-
-    public OffsetDateTime getDataMovimentacao() {
-        return dataMovimentacao;
-    }
-
-    public void setDataMovimentacao(OffsetDateTime dataMovimentacao) {
-        this.dataMovimentacao = dataMovimentacao;
-    }
-
-    public FuncionarioEntity getFuncionarioResponsavel() {
-        return funcionarioResponsavel;
-    }
-
-    public void setFuncionarioResponsavel(FuncionarioEntity funcionarioResponsavel) {
-        this.funcionarioResponsavel = funcionarioResponsavel;
-    }
-
+    // -------- equals/hash/toString --------
     @Override
-    public int hashCode() {
-        return Objects.hash(id);
-    }
+    public int hashCode() { return Objects.hash(id); }
 
     @Override
     public boolean equals(Object obj) {
@@ -125,7 +120,11 @@ public class FinanceiroMovimentacaoEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "FinanceiroMovimentacaoEntity{" + "id=" + id + ", descricao=" + descricao + ", valor=" + valor + ", tipo=" + tipo + "}";
+        return "FinanceiroMovimentacaoEntity{" +
+                "id=" + id +
+                ", descricao='" + descricao + '\'' +
+                ", valor=" + valor +
+                ", tipo='" + tipo + '\'' +
+                '}';
     }
 }
-

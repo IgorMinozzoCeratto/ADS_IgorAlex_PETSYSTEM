@@ -3,7 +3,6 @@ br\upf\projetojfprimefaces\controller\AnimalController.class
 br\upf\projetojfprimefaces\entity\EspecieEntity.class
 br\upf\projetojfprimefaces\facade\FuncionarioFacade.class
 br\upf\projetojfprimefaces\facade\VacinacaoFacade.class
-br\upf\projetojfprimefaces\converter\MovimentacaoConverter.class
 br\upf\projetojfprimefaces\facade\AnimalFacade.class
 br\upf\projetojfprimefaces\facade\FinanceiroMovimentacaoFacade.class
 br\upf\projetojfprimefaces\entity\RacaEntity.class
@@ -18,6 +17,7 @@ br\upf\projetojfprimefaces\FiltroAdministrativo.class
 br\upf\projetojfprimefaces\controller\TutorController.class
 br\upf\projetojfprimefaces\entity\LogAcessoEntity.class
 br\upf\projetojfprimefaces\controller\UFController.class
+br\upf\projetojfprimefaces\converter\ConsultaConverter.class
 br\upf\projetojfprimefaces\controller\ConsultaController.class
 br\upf\projetojfprimefaces\converter\TutorConverter.class
 br\upf\projetojfprimefaces\controller\PerfilController.class
@@ -29,6 +29,7 @@ br\upf\projetojfprimefaces\controller\LoginController.class
 br\upf\projetojfprimefaces\converter\RacaConverter.class
 br\upf\projetojfprimefaces\entity\TutorEntity.class
 br\upf\projetojfprimefaces\controller\FinanceiroMovimentacaoController.class
+br\upf\projetojfprimefaces\converter\FinanceiroMovimentacaoConverter.class
 br\upf\projetojfprimefaces\converter\ProntuarioConverter.class
 br\upf\projetojfprimefaces\converter\AnimalConverter.class
 br\upf\projetojfprimefaces\facade\PerfilFacade.class

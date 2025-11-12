@@ -1,138 +1,173 @@
 package br.upf.projetojfprimefaces.controller;
 
-import br.upf.projetojfprimefaces.entity.FinanceiroMovimentacaoEntity;
 import br.upf.projetojfprimefaces.entity.PagamentoEntity;
-import br.upf.projetojfprimefaces.facade.FinanceiroMovimentacaoFacade;
+import br.upf.projetojfprimefaces.entity.TutorEntity;
+import br.upf.projetojfprimefaces.entity.FinanceiroMovimentacaoEntity;
+import br.upf.projetojfprimefaces.entity.ConsultaEntity;
 import br.upf.projetojfprimefaces.facade.PagamentoFacade;
+import br.upf.projetojfprimefaces.facade.TutorFacade;
+import br.upf.projetojfprimefaces.facade.FinanceiroMovimentacaoFacade;
+import br.upf.projetojfprimefaces.facade.ConsultaFacade;
 import jakarta.annotation.PostConstruct;
 import jakarta.ejb.EJB;
+import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
-import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 
-import java.io.Serial;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
-@Named("pagamentoController")
-@ViewScoped
+@Named
+@SessionScoped
 public class PagamentoController implements Serializable {
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
-    @EJB
-    private PagamentoFacade pagamentoFacade;
+    @EJB private PagamentoFacade pagamentoFacade;
+    @EJB private TutorFacade tutorFacade;
+    @EJB private FinanceiroMovimentacaoFacade movimentacaoFacade;
+    @EJB private ConsultaFacade consultaFacade; // se houver campo consulta
 
-    @EJB
-    private FinanceiroMovimentacaoFacade movimentacaoFacade;
-
-    /** Lista de pagamentos para a tela de cadastro/listagem (se houver) */
-    private List<PagamentoEntity> lista;
-
-    /** Pagamento em edição */
     private PagamentoEntity pagamento;
-
-    /** Exigido pelo xhtml: value="#{pagamentoController.movimentacaoSelecionada}" em <p:selectOneMenu> */
-    private FinanceiroMovimentacaoEntity movimentacaoSelecionada;
-
-    /** Para popular o selectOneMenu de movimentações */
-    private List<FinanceiroMovimentacaoEntity> movimentacoes;
+    private List<PagamentoEntity> lista = new ArrayList<>();
 
     @PostConstruct
     public void init() {
-        refreshListas();
-        novo();
+        recarregarLista();
     }
 
-    public void refreshListas() {
-        try {
-            lista = pagamentoFacade.findAll();
-            if (lista == null) lista = new ArrayList<>();
-
-            movimentacoes = movimentacaoFacade.findAll();
-            if (movimentacoes == null) movimentacoes = new ArrayList<>();
-        } catch (Exception e) {
-            lista = new ArrayList<>();
-            movimentacoes = new ArrayList<>();
-            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao carregar dados", e.getMessage());
-        }
-    }
-
-    public void novo() {
-        pagamento = new PagamentoEntity();
-        movimentacaoSelecionada = null;
-    }
-
-    public void salvar() {
-        try {
-            // Garanta que o relacionamento seja setado antes de persistir
-            // Ajuste o setter conforme o nome do atributo em PagamentoEntity (ex.: setMovimentacao, setFinanceiroMovimentacao, etc.)
-            pagamento.setMovimentacao(movimentacaoSelecionada);
-
-            if (pagamento.getId() == null) {
-                pagamentoFacade.create(pagamento);
-                addMsg(FacesMessage.SEVERITY_INFO, "Pagamento criado", null);
-            } else {
-                pagamentoFacade.edit(pagamento);
-                addMsg(FacesMessage.SEVERITY_INFO, "Pagamento atualizado", null);
-            }
-            refreshListas();
-            novo();
-        } catch (Exception e) {
-            addMsg(FacesMessage.SEVERITY_ERROR, "Falha ao salvar pagamento", e.getMessage());
-        }
-    }
-
-    public void editar(PagamentoEntity item) {
-        if (item != null) {
-            this.pagamento = item;
-            // alinha o select com a movimentação já vinculada
-            this.movimentacaoSelecionada = item.getMovimentacao();
-        }
-    }
-
-    public void excluir(PagamentoEntity item) {
-        try {
-            pagamentoFacade.remove(item);
-            addMsg(FacesMessage.SEVERITY_INFO, "Pagamento excluído", null);
-            refreshListas();
-        } catch (Exception e) {
-            addMsg(FacesMessage.SEVERITY_ERROR, "Falha ao excluir", e.getMessage());
-        }
-    }
-
-    private void addMsg(FacesMessage.Severity sev, String sum, String det) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(sev, sum, det));
-    }
-
-    /* ===== GETTERS/SETTERS exigidos pelos xhtml ===== */
-
-    public List<PagamentoEntity> getLista() {
-        return lista;
-    }
-
+    // ---------- inicialização preguiçosa (abre cadastro mesmo por URL) ----------
     public PagamentoEntity getPagamento() {
+        if (pagamento == null) {
+            pagamento = new PagamentoEntity();
+            pagamento.setDataPagamento(new Date());
+            pagamento.setValorPago(BigDecimal.ZERO);
+            pagamento.setFormaPagamento("");
+        }
         return pagamento;
     }
+    public void setPagamento(PagamentoEntity pagamento) { this.pagamento = pagamento; }
 
-    public void setPagamento(PagamentoEntity pagamento) {
-        this.pagamento = pagamento;
+    // --------------------- Navegação / ciclo de tela ---------------------------
+    public String novo() {
+        pagamento = new PagamentoEntity();
+        pagamento.setDataPagamento(new Date());
+        pagamento.setValorPago(BigDecimal.ZERO);
+        pagamento.setFormaPagamento("");
+        return "/pagamento/cadastro.xhtml?faces-redirect=true";
     }
 
-    /** Necessário pelo xhtml @45,74 (selectOneMenu) */
-    public FinanceiroMovimentacaoEntity getMovimentacaoSelecionada() {
-        return movimentacaoSelecionada;
+    public String editar(PagamentoEntity p) {
+        pagamento = p;
+        return "/pagamento/cadastro.xhtml?faces-redirect=true";
     }
 
-    public void setMovimentacaoSelecionada(FinanceiroMovimentacaoEntity movimentacaoSelecionada) {
-        this.movimentacaoSelecionada = movimentacaoSelecionada;
+    public String cancelar() {
+        pagamento = null;
+        return "/pagamento/lista.xhtml?faces-redirect=true";
     }
 
-    /** Para popular o <p:selectOneMenu> das movimentações */
-    public List<FinanceiroMovimentacaoEntity> getMovimentacoes() {
-        return movimentacoes;
+    public void recarregarLista() {
+        lista = pagamentoFacade.findAll();
+    }
+
+    // ------------------------------- CRUD -------------------------------------
+    public String salvar() {
+        if (pagamento == null) {
+            addMsg(FacesMessage.SEVERITY_ERROR, "Pagamento não inicializado.");
+            return null;
+        }
+        if (pagamento.getValorPago() == null) {
+            addMsg(FacesMessage.SEVERITY_ERROR, "Informe o valor pago.");
+            return null;
+        }
+        if (pagamento.getDataPagamento() == null) {
+            addMsg(FacesMessage.SEVERITY_ERROR, "Informe a data de pagamento.");
+            return null;
+        }
+        if (pagamento.getFormaPagamento() == null || pagamento.getFormaPagamento().isBlank()) {
+            addMsg(FacesMessage.SEVERITY_ERROR, "Informe a forma de pagamento.");
+            return null;
+        }
+        if (pagamento.getTutor() == null || pagamento.getTutor().getId() == null) {
+            addMsg(FacesMessage.SEVERITY_ERROR, "Selecione o tutor.");
+            return null;
+        }
+        if (pagamento.getMovimentacao() == null || pagamento.getMovimentacao().getId() == null) {
+            addMsg(FacesMessage.SEVERITY_ERROR, "Selecione a movimentação financeira.");
+            return null;
+        }
+
+        try {
+            if (pagamento.getId() == null) {
+                pagamentoFacade.create(pagamento);
+                addMsg(FacesMessage.SEVERITY_INFO, "Pagamento criado com sucesso!");
+            } else {
+                pagamentoFacade.edit(pagamento);
+                addMsg(FacesMessage.SEVERITY_INFO, "Pagamento atualizado com sucesso!");
+            }
+            recarregarLista();
+            pagamento = null;
+            return "/pagamento/lista.xhtml?faces-redirect=true";
+        } catch (Exception ex) {
+            handleConstraintViolations(ex);
+            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao salvar: " + rootMessage(ex));
+            return null;
+        }
+    }
+
+    public void excluir(PagamentoEntity p) {
+        try {
+            pagamentoFacade.remove(p);
+            recarregarLista();
+            addMsg(FacesMessage.SEVERITY_INFO, "Pagamento excluído.");
+        } catch (Exception ex) {
+            handleConstraintViolations(ex);
+            addMsg(FacesMessage.SEVERITY_ERROR, "Erro ao excluir: " + rootMessage(ex));
+        }
+    }
+
+    // ------------------------ Utilidades/Mensagens ----------------------------
+    private void addMsg(FacesMessage.Severity s, String m) {
+        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(s, m, null));
+    }
+
+    private String rootMessage(Throwable t) {
+        Throwable x = t;
+        while (x.getCause() != null && !Objects.equals(x.getCause(), x)) {
+            x = x.getCause();
+        }
+        return (x.getMessage() != null ? x.getMessage() : x.toString());
+    }
+
+    private void handleConstraintViolations(Exception ex) {
+        Throwable x = ex;
+        while (x != null) {
+            if (x instanceof ConstraintViolationException) {
+                ConstraintViolationException cve = (ConstraintViolationException) x;
+                for (ConstraintViolation<?> cv : cve.getConstraintViolations()) {
+                    addMsg(FacesMessage.SEVERITY_ERROR,
+                            (cv.getPropertyPath() != null ? cv.getPropertyPath().toString() + ": " : "")
+                                    + cv.getMessage());
+                }
+                break;
+            }
+            x = x.getCause();
+        }
+    }
+
+    // ----------------------------- Listas -------------------------------------
+    public List<PagamentoEntity> getLista() { return lista; }
+    public List<TutorEntity> getTutores() { return tutorFacade.findAll(); }
+    public List<FinanceiroMovimentacaoEntity> getMovimentacoes() { return movimentacaoFacade.findAll(); }
+    public List<ConsultaEntity> getConsultas() {
+        return consultaFacade != null ? consultaFacade.findAll() : new ArrayList<>();
     }
 }

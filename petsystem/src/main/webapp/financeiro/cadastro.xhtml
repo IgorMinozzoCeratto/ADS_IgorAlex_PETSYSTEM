@@ -5,111 +5,65 @@
       xmlns:p="http://primefaces.org/ui">
 
 <h:head>
-    <title>Financeiro - Movimentações</title>
-    <!-- (Opcional) estilos do Manhattan/PrimeFlex se já estiverem no projeto -->
-    <h:outputStylesheet library="manhattan-layout" name="css/primeflex.min.css"/>
+    <title>Financeiro - Cadastro</title>
 </h:head>
 
 <h:body>
-<h:form id="frmMov">
+    <h:form id="form">
+        <p:messages id="msgs" showDetail="true" closable="true"/>
 
-    <p:growl id="msgs" showDetail="true" life="4000"/>
+        <p:panel header="Cadastro de Movimentação" styleClass="p-mb-3">
+            <p:panelGrid columns="2" layout="grid" columnClasses="col-12 md:col-3, col-12 md:col-9" styleClass="p-fluid">
 
-    <p:toolbar styleClass="mb-3">
-        <p:toolbarGroup>
-            <p:commandButton value="Novo" icon="pi pi-plus"
-                             process="@this"
-                             update=":dlgMov"
-                             oncomplete="PF('dlgMov').show()"
-                             actionListener="#{financeiroMovimentacaoController.novo}"/>
-            <p:commandButton value="Atualizar" icon="pi pi-refresh" styleClass="ml-2"
-                             process="@this"
-                             update="tbl"/>
-        </p:toolbarGroup>
-    </p:toolbar>
+                <!-- Descrição -->
+                <p:outputLabel for="descricao" value="Descrição"/>
+                <p:inputText id="descricao"
+                             value="#{financeiroMovimentacaoController.movimentacao.descricao}"
+                             required="true" maxlength="255"/>
 
-    <p:dataTable id="tbl"
-                 value="#{financeiroMovimentacaoController.lista}"
-                 var="m"
-                 paginator="true" rows="10"
-                 stripedRows="true" styleClass="w-full">
+                <!-- Valor -->
+                <p:outputLabel for="valor" value="Valor"/>
+                <p:inputNumber id="valor"
+                               value="#{financeiroMovimentacaoController.movimentacao.valor}"
+                               required="true" decimalPlaces="2" thousandSeparator="." decimalSeparator=","/>
 
-        <p:column headerText="ID" sortBy="#{m.id}" style="width:100px">
-            <h:outputText value="#{m.id}"/>
-        </p:column>
+                <!-- Tipo (R/D) -->
+                <p:outputLabel for="tipo" value="Tipo"/>
+                <p:selectOneMenu id="tipo"
+                                 value="#{financeiroMovimentacaoController.movimentacao.tipo}"
+                                 required="true" styleClass="w-full">
+                    <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
+                    <f:selectItem itemLabel="Receita (R)" itemValue="R"/>
+                    <f:selectItem itemLabel="Despesa (D)" itemValue="D"/>
+                </p:selectOneMenu>
 
-        <p:column headerText="Descrição" sortBy="#{m.descricao}">
-            <h:outputText value="#{m.descricao}"/>
-        </p:column>
+                <!-- Funcionário Responsável -->
+                <p:outputLabel for="funcResp" value="Funcionário Responsável"/>
+                <p:selectOneMenu id="funcResp"
+                                 value="#{financeiroMovimentacaoController.movimentacao.funcionarioResponsavel}"
+                                 converter="funcionarioConverter"
+                                 required="true" styleClass="w-full">
+                    <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
+                    <f:selectItems value="#{financeiroMovimentacaoController.funcionarios}"
+                                   var="f" itemValue="#{f}" itemLabel="#{f.nome}"/>
+                </p:selectOneMenu>
 
-        <p:column headerText="Tipo" style="width:140px" sortBy="#{m.tipo}">
-            <h:outputText value="#{m.tipo}"/>
-        </p:column>
+                <!-- Data da Movimentação (somente leitura por enquanto) -->
+                <p:outputLabel for="dataMov" value="Data da Movimentação"/>
+                <p:outputLabel id="dataMov"
+                               value="#{financeiroMovimentacaoController.movimentacao.dataMovimentacaoFmt}"/>
+            </p:panelGrid>
 
-        <p:column headerText="Valor" style="width:160px" sortBy="#{m.valor}">
-            <h:outputText value="#{m.valor}">
-                <f:convertNumber type="currency" currencySymbol="R$ " minFractionDigits="2" />
-            </h:outputText>
-        </p:column>
-
-        <p:column headerText="Data" style="width:180px" sortBy="#{m.data}">
-            <h:outputText value="#{m.data}">
-                <f:convertDateTime pattern="dd/MM/yyyy"/>
-            </h:outputText>
-        </p:column>
-
-        <p:column headerText="Ações" style="width:220px; text-align:center">
-            <p:commandButton icon="pi pi-pencil" title="Editar"
-                             actionListener="#{financeiroMovimentacaoController.editar(m)}"
-                             update=":dlgMov" oncomplete="PF('dlgMov').show()"
-                             styleClass="p-button-text p-button-sm"/>
-            <p:commandButton icon="pi pi-trash" title="Excluir"
-                             actionListener="#{financeiroMovimentacaoController.excluir(m)}"
-                             update="@form"
-                             styleClass="p-button-danger p-button-text p-button-sm"
-                             onclick="return confirm('Excluir este registro?');"/>
-        </p:column>
-    </p:dataTable>
-
-    <!-- Diálogo de cadastro/edição -->
-    <p:dialog id="dlgMov" header="Movimentação" widgetVar="dlgMov" modal="true" responsive="true" closable="true" width="520">
-        <h:panelGrid columns="2" columnClasses="w-3, w-9" styleClass="p-fluid" cellpadding="6">
-
-            <h:outputLabel for="desc" value="Descrição"/>
-            <p:inputText id="desc" maxlength="120"
-                         value="#{financeiroMovimentacaoController.selecionado.descricao}" required="true"/>
-
-            <h:outputLabel for="tipo" value="Tipo"/>
-            <p:selectOneMenu id="tipo" value="#{financeiroMovimentacaoController.selecionado.tipo}" required="true">
-                <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true"/>
-                <f:selectItem itemLabel="ENTRADA" itemValue="ENTRADA"/>
-                <f:selectItem itemLabel="SAIDA" itemValue="SAIDA"/>
-            </p:selectOneMenu>
-
-            <h:outputLabel for="valor" value="Valor"/>
-            <p:inputNumber id="valor" decimalPlaces="2" minValue="0"
-                           value="#{financeiroMovimentacaoController.selecionado.valor}" required="true"/>
-
-            <h:outputLabel for="data" value="Data"/>
-            <p:datePicker id="data" pattern="dd/MM/yyyy" showIcon="true"
-                          value="#{financeiroMovimentacaoController.selecionado.data}" required="true"/>
-
-            <h:outputLabel for="obs" value="Observações"/>
-            <p:inputTextarea id="obs" autoResize="true" rows="3" maxlength="255"
-                             value="#{financeiroMovimentacaoController.selecionado.observacao}"/>
-
-        </h:panelGrid>
-
-        <f:facet name="footer">
-            <p:commandButton value="Salvar" icon="pi pi-check" styleClass="mr-2"
-                             actionListener="#{financeiroMovimentacaoController.salvar}"
-                             update=":frmMov:msgs :frmMov:tbl"
-                             oncomplete="if (!args.validationFailed) PF('dlgMov').hide();"/>
-            <p:commandButton value="Cancelar" icon="pi pi-times" type="button"
-                             onclick="PF('dlgMov').hide()"/>
-        </f:facet>
-    </p:dialog>
-
-</h:form>
+            <div class="p-mt-3">
+                <p:commandButton value="Salvar"
+                                 action="#{financeiroMovimentacaoController.salvar}"
+                                 update=":form:msgs"
+                                 styleClass="p-button-success p-mr-2"/>
+                <p:button value="Cancelar"
+                          outcome="/financeiro/lista.xhtml?faces-redirect=true"
+                          styleClass="p-button-secondary"/>
+            </div>
+        </p:panel>
+    </h:form>
 </h:body>
 </html>

@@ -11,34 +11,42 @@ import jakarta.inject.Named;
 
 @Named("funcionarioConverter")
 @FacesConverter(value = "funcionarioConverter", managed = true)
-public class FuncionarioConverter implements Converter<FuncionarioEntity> {
+public class FuncionarioConverter implements Converter<Object> {
 
     @Inject
     private FuncionarioFacade funcionarioFacade;
 
     @Override
-    public FuncionarioEntity getAsObject(FacesContext context, UIComponent component, String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return null;
-        }
+    public Object getAsObject(FacesContext context, UIComponent component, String value) {
+        if (value == null) return null;
+        String v = value.trim();
+        if (v.isEmpty() || "null".equalsIgnoreCase(v)) return null;
 
         try {
-            Integer id = Integer.valueOf(value); // ✅ Correção aqui
+            Integer id = Integer.valueOf(v);
             return funcionarioFacade.find(id);
         } catch (NumberFormatException e) {
-            System.err.println("Conversão inválida para FuncionarioEntity: valor não numérico -> " + value);
+            // Valor não numérico: não converte
+            return null;
         } catch (Exception e) {
-            System.err.println("Erro ao buscar FuncionarioEntity: " + e.getMessage());
+            System.err.println("[FuncionarioConverter] Erro ao buscar FuncionarioEntity: " + e.getMessage());
+            return null;
         }
-
-        return null;
     }
 
     @Override
-    public String getAsString(FacesContext context, UIComponent component, FuncionarioEntity funcionario) {
-        if (funcionario == null || funcionario.getId() == null) {
-            return "";
+    public String getAsString(FacesContext context, UIComponent component, Object value) {
+        if (value == null) return "";
+
+        // Java 11: usar instanceof + cast explícito
+        if (value instanceof FuncionarioEntity) {
+            FuncionarioEntity f = (FuncionarioEntity) value;
+            return f.getId() != null ? f.getId().toString() : "";
         }
-        return funcionario.getId().toString();
+        if (value instanceof String) {
+            // O renderer às vezes chama com String
+            return (String) value;
+        }
+        return "";
     }
 }

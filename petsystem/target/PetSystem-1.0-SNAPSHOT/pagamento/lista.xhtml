@@ -5,58 +5,47 @@
       xmlns:p="http://primefaces.org/ui">
 
 <h:head>
-    <title>Pagamentos</title>
+    <title>Pagamentos - Lista</title>
 </h:head>
 
 <h:body>
-<h:form id="formPagamento">
-    <p:messages id="msgs" showDetail="true" closable="true" />
+<h:form id="formLista">
+    <p:growl id="msgs" showDetail="true" />
 
-    <p:toolbar styleClass="mb-3">
+    <p:toolbar styleClass="p-mb-3">
         <p:toolbarGroup>
-            <p:commandButton value="Recarregar" icon="pi pi-refresh"
-                             actionListener="#{pagamentoController.carregarLista}"
-                             update="tabela msgs"/>
+            <!-- Usa action (não outcome) para inicializar o bean -->
+            <p:commandButton value="Novo" icon="pi pi-plus"
+                             action="#{pagamentoController.novo}" />
         </p:toolbarGroup>
     </p:toolbar>
 
-    <!-- CORRIGIDO: value -> lista -->
-    <p:dataTable id="tabela"
-                 value="#{pagamentoController.lista}"
-                 var="p"
-                 paginator="true" rows="10"
-                 emptyMessage="Nenhum pagamento encontrado."
-                 styleClass="p-datatable-sm">
-
-        <p:column headerText="ID" sortBy="#{p.id}">
+    <p:dataTable value="#{pagamentoController.lista}" var="p" paginator="true" rows="10"
+                 emptyMessage="Nenhum pagamento encontrado.">
+        <p:column headerText="ID" style="width:90px;text-align:center">
             <h:outputText value="#{p.id}" />
         </p:column>
-
-        <p:column headerText="Data" sortBy="#{p.dataPagamento}">
-            <h:outputText value="#{p.dataPagamento}">
-                <f:convertDateTime pattern="dd/MM/yyyy" />
-            </h:outputText>
+        <p:column headerText="Tutor">
+            <h:outputText value="#{p.tutor.nome}" />
         </p:column>
-
-        <p:column headerText="Valor" sortBy="#{p.valor}">
-            <h:outputText value="#{p.valor}">
+        <p:column headerText="Valor Pago" style="width:150px;text-align:right">
+            <h:outputText value="#{p.valorPago}">
                 <f:convertNumber type="currency" currencySymbol="R$ " />
             </h:outputText>
         </p:column>
-
-        <p:column headerText="Movimentação" sortBy="#{p.movimentacao.descricao}">
-            <h:outputText value="#{p.movimentacao != null ? p.movimentacao.descricao : '-'}" />
+        <p:column headerText="Data" style="width:180px;text-align:center">
+            <h:outputText value="#{p.dataPagamento}">
+                <f:convertDateTime pattern="dd/MM/yyyy" timeZone="America/Sao_Paulo"/>
+            </h:outputText>
         </p:column>
-
-        <p:column headerText="Ações" style="width: 180px; text-align:center">
-            <p:commandButton icon="pi pi-pencil" title="Editar"
-                             actionListener="#{pagamentoController.editar(p)}"
-                             update="msgs" />
-            <p:spacer width="6" />
-            <p:commandButton icon="pi pi-trash" title="Excluir"
+        <p:column headerText="Ações" style="width:220px;text-align:center">
+            <p:commandButton value="Editar" icon="pi pi-pencil" styleClass="p-button-sm p-mr-2"
+                             action="#{pagamentoController.editar(p)}" />
+            <p:commandButton value="Excluir" icon="pi pi-trash" styleClass="p-button-sm p-button-danger"
                              actionListener="#{pagamentoController.excluir(p)}"
-                             update="tabela msgs"
-                             onclick="return confirm('Confirma excluir?');" />
+                             update=":formLista:msgs :formLista"
+                             process="@this"
+                             onclick="return confirm('Excluir este registro?');" />
         </p:column>
     </p:dataTable>
 </h:form>

@@ -155,6 +155,9 @@ INSERT INTO raca (nome, id_especie) VALUES
 
 ALTER TABLE vacinacao ADD COLUMN observacoes TEXT;
 ALTER TABLE exame ADD COLUMN observacoes TEXT;
+ALTER TABLE pagamento ADD COLUMN forma varchar(20) NOT NULL DEFAULT 'DINHEIRO';
+ALTER TABLE pagamento ADD COLUMN IF NOT EXISTS valor NUMERIC(12,2);
+
 
 
 CREATE INDEX idx_funcionario_perfil ON funcionario (id_perfil);
