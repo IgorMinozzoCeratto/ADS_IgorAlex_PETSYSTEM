@@ -1,39 +1,40 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui">
-<h:head>
-    <title>Cadastro de Prontuário</title>
-    <meta charset="UTF-8" />
-    <style>
-        .form-wrap{ max-width:1100px; margin:0 auto; }
-        .pg2 .ui-panelgrid-cell:nth-child(odd){ width:160px; text-align:right; vertical-align:top; padding-top:.5rem; }
-        .pg2 .ui-panelgrid-cell:nth-child(even){ width:calc(100% - 160px); }
-        textarea{ width:100%; min-height:120px; }
-    </style>
-</h:head>
+<ui:composition
+    template="/WEB-INF/template.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-<h:body>
-    <div class="form-wrap">
-        <p:panel header="Cadastro de Prontuário">
-            <h:form id="form">
-                <p:messages id="messages" showDetail="true" closable="true" />
+    <ui:define name="title">Cadastro de Prontuário - PetSystem</ui:define>
 
-                <p:panelGrid id="grid" columns="2" styleClass="pg2">
-                    <!-- Data -->
+    <ui:define name="content">
+        <div class="card">
+            <div class="form-wrap">
+                    <p:panel header="Cadastro de Prontuário">
+    <h:form id="form">
+        <p:messages id="messages" showDetail="true" closable="true" />
+
+        <div class="ui-fluid">
+            <div class="p-formgrid p-grid">
+                <!-- Data -->
+                <div class="p-field p-col-12 p-md-3">
                     <p:outputLabel for="data" value="Data:" />
                     <p:datePicker id="data"
                                   value="#{prontuarioController.prontuario.dataCriacao}"
                                   showIcon="true" touchUI="false"
-                                  required="true" requiredMessage="Informe a data." />
+                                  required="true"
+                                  requiredMessage="Informe a data." />
+                </div>
 
-                    <!-- Animal -->
-                    <p:outputLabel for="animal" value="Animal:" />
+                <!-- Animal -->
+                <div class="p-field p-col-12 p-md-9">
+                    <p:outputLabel for="animal" value="Animal: *" />
                     <p:selectOneMenu id="animal"
                                      value="#{prontuarioController.animalSelecionado}"
                                      converter="animalConverter"
-                                     required="true" requiredMessage="Selecione um animal."
+                                     required="true"
+                                     requiredMessage="Selecione um animal."
                                      style="width:100%">
                         <f:selectItem itemLabel="-- selecione --" itemValue="#{null}" noSelectionOption="true" />
                         <f:selectItems value="#{prontuarioController.listaAnimais}"
@@ -41,29 +42,35 @@
                                        itemLabel="#{a.nome} (Tutor: #{a.tutor.nome})"
                                        itemValue="#{a}" />
                     </p:selectOneMenu>
+                </div>
 
-                    <!-- Observações -->
+                <!-- Observações -->
+                <div class="p-field p-col-12">
                     <p:outputLabel for="observacoes" value="Observações:" />
                     <p:inputTextarea id="observacoes"
                                      value="#{prontuarioController.prontuario.observacoes}"
+                                     rows="4"
                                      autoResize="false" />
-                </p:panelGrid>
+                </div>
+            </div>
+        </div>
 
-                <p:separator />
+        <p:separator />
 
-                <p:commandButton value="Salvar"
-                                 action="#{prontuarioController.salvar}"
-                                 update="messages"
-                                 icon="pi pi-save"
-                                 styleClass="ui-button-primary" />
+        <p:commandButton value="Salvar"
+                         action="#{prontuarioController.salvar}"
+                         update="messages"
+                         icon="pi pi-save"
+                         styleClass="ui-button-primary" />
 
-                <p:button value="Voltar"
-                          outcome="/prontuario/lista?faces-redirect=true"
-                          icon="pi pi-arrow-left"
-                          styleClass="ui-button-secondary"
-                          style="margin-left:.5rem" />
-            </h:form>
-        </p:panel>
-    </div>
-</h:body>
-</html>
+        <p:button value="Voltar"
+                  outcome="/prontuario/lista?faces-redirect=true"
+                  icon="pi pi-arrow-left"
+                  styleClass="ui-button-secondary"
+                  style="margin-left:.5rem" />
+    </h:form>
+</p:panel>
+                </div>
+        </div>
+    </ui:define>
+</ui:composition>

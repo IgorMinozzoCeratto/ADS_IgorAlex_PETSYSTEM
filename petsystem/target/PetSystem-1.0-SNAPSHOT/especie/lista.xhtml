@@ -1,41 +1,41 @@
+<ui:composition
+    template="/WEB-INF/template.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui">
+    <ui:define name="title">Lista de Espécies - PetSystem</ui:define>
 
-    <h:head>
-        <title>Lista de Espécies</title>
-    </h:head>
+    <ui:define name="content">
+        <div class="card">
+            <p:panel header="Espécies Cadastradas">
+                        <h:form>
+                            <p:commandButton value="Nova Espécie" action="cadastro.xhtml" icon="pi pi-plus" styleClass="ui-button-success"/>
+                            <p:spacer height="10"/>
 
-    <h:body>
-        <p:panel header="Espécies Cadastradas">
-            <h:form>
-                <p:commandButton value="Nova Espécie" action="cadastro.xhtml" icon="pi pi-plus" styleClass="ui-button-success"/>
-                <p:spacer height="10"/>
+                            <p:dataTable value="#{especieController.listaEspecies}" var="especie" emptyMessage="Nenhuma espécie encontrada.">
+                                <p:column headerText="ID">
+                                    <h:outputText value="#{especie.id}"/>
+                                </p:column>
+                                <p:column headerText="Nome">
+                                    <h:outputText value="#{especie.nome}"/>
+                                </p:column>
+                                <p:column headerText="Ações">
+                                    <p:commandButton value="Editar" action="#{especieController.editar(especie)}" icon="pi pi-pencil" styleClass="ui-button-info"/>
+                                    <p:commandButton value="Excluir" action="#{especieController.excluir(especie)}" icon="pi pi-trash" styleClass="ui-button-danger" update="@form">
+                                        <p:confirm header="Confirmação" message="Deseja realmente excluir esta espécie?" icon="pi pi-exclamation-triangle"/>
+                                    </p:commandButton>
+                                </p:column>
+                            </p:dataTable>
 
-                <p:dataTable value="#{especieController.listaEspecies}" var="especie" emptyMessage="Nenhuma espécie encontrada.">
-                    <p:column headerText="ID">
-                        <h:outputText value="#{especie.id}"/>
-                    </p:column>
-                    <p:column headerText="Nome">
-                        <h:outputText value="#{especie.nome}"/>
-                    </p:column>
-                    <p:column headerText="Ações">
-                        <p:commandButton value="Editar" action="#{especieController.editar(especie)}" icon="pi pi-pencil" styleClass="ui-button-info"/>
-                        <p:commandButton value="Excluir" action="#{especieController.excluir(especie)}" icon="pi pi-trash" styleClass="ui-button-danger" update="@form">
-                            <p:confirm header="Confirmação" message="Deseja realmente excluir esta espécie?" icon="pi pi-exclamation-triangle"/>
-                        </p:commandButton>
-                    </p:column>
-                </p:dataTable>
-
-                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
-                    <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
-                    <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes"/>
-                </p:confirmDialog>
-            </h:form>
-        </p:panel>
-    </h:body>
-</html>
-
+                            <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                                <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                                <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes"/>
+                            </p:confirmDialog>
+                        </h:form>
+                    </p:panel>
+        </div>
+    </ui:define>
+</ui:composition>

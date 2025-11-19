@@ -1,31 +1,31 @@
+<ui:composition
+    template="/WEB-INF/template.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui">
+    <ui:define name="title">Cadastro de Perfil - PetSystem</ui:define>
 
-    <h:head>
-        <title>Cadastro de Perfil</title>
-    </h:head>
+    <ui:define name="content">
+        <div class="card">
+            <p:panel header="Cadastro de Perfil">
+                        <h:form>
+                            <p:messages id="messages" showDetail="true" closable="true"/>
 
-    <h:body>
-        <p:panel header="Cadastro de Perfil">
-            <h:form>
-                <p:messages id="messages" showDetail="true" closable="true"/>
+                            <p:panelGrid columns="2" layout="grid">
+                                <p:outputLabel for="nome" value="Nome:"/>
+                                <p:inputText id="nome" value="#{perfilController.perfil.nome}" required="true" requiredMessage="O nome é obrigatório."/>
 
-                <p:panelGrid columns="2" layout="grid">
-                    <p:outputLabel for="nome" value="Nome:"/>
-                    <p:inputText id="nome" value="#{perfilController.perfil.nome}" required="true" requiredMessage="O nome é obrigatório."/>
+                                <p:outputLabel for="descricao" value="Descrição:"/>
+                                <p:inputTextarea id="descricao" value="#{perfilController.perfil.descricao}" rows="3" cols="30"/>
+                            </p:panelGrid>
 
-                    <p:outputLabel for="descricao" value="Descrição:"/>
-                    <p:inputTextarea id="descricao" value="#{perfilController.perfil.descricao}" rows="3" cols="30"/>
-                </p:panelGrid>
-
-                <p:commandButton value="Salvar" action="#{perfilController.salvar()}" update="@form" icon="pi pi-save" styleClass="ui-button-primary"/>
-                <p:commandButton value="Voltar" action="lista.xhtml?faces-redirect=true" immediate="true" icon="pi pi-arrow-left" styleClass="ui-button-secondary"/>
-            </h:form>
-        </p:panel>
-    </h:body>
-</html>
-
+                            <p:commandButton value="Salvar" action="#{perfilController.salvar()}" update="@form" icon="pi pi-save" styleClass="ui-button-primary"/>
+                            <p:commandButton value="Voltar" action="lista.xhtml?faces-redirect=true" immediate="true" icon="pi pi-arrow-left" styleClass="ui-button-secondary"/>
+                        </h:form>
+                    </p:panel>
+        </div>
+    </ui:define>
+</ui:composition>

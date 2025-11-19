@@ -1,0 +1,186 @@
+/* PetSystem tema profissional - verde petróleo + teal */
+
+body {
+    background-color: #F5F8FA;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #1F2933;
+}
+
+.card,
+.ui-panel,
+.ui-datatable,
+.ui-dialog,
+.ui-tabs,
+.ui-fieldset,
+.ui-panelgrid,
+.p-panel,
+.p-card {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E0E6ED;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    padding: 1.25rem;
+}
+
+.header {
+    background: linear-gradient(90deg, #1F8A70, #28B5B5);
+    color: #FFFFFF;
+    border-bottom: none;
+    box-shadow: 0 4px 10px rgba(15,23,42,0.25);
+}
+
+.header h1 {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    font-size: 1.1rem;
+}
+
+.footer {
+    background-color: #F5F8FA;
+    color: #4B5563;
+    border-top: 1px solid #E0E6ED;
+    font-size: .85rem;
+}
+
+.content {
+    padding: 1.5rem;
+}
+
+/* Menus */
+body .ui-menu, 
+body .ui-menubar {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+body .ui-menu .ui-menuitem-link,
+body .ui-menubar .ui-menuitem-link {
+    border-radius: 999px;
+    padding: .5rem 1rem;
+    color: #0F172A;
+    font-weight: 500;
+}
+
+body .ui-menu .ui-menuitem-link:hover,
+body .ui-menubar .ui-menuitem-link:hover {
+    background-color: rgba(255,255,255,0.15);
+    color: #FFFFFF;
+}
+
+/* Botões PrimeFaces (classes antigas e novas) */
+body .ui-button,
+body .ui-button.ui-state-default,
+body .p-button {
+    background: #1F8A70;
+    border: 1px solid #1F8A70;
+    border-radius: 999px;
+    color: #FFFFFF;
+    font-weight: 600;
+    padding: .55rem 1.6rem;
+    box-shadow: 0 4px 10px rgba(31,138,112,0.35);
+    transition: background-color .15s ease, box-shadow .15s ease, transform .1s ease;
+}
+
+body .ui-button:hover,
+body .ui-button.ui-state-hover,
+body .p-button:hover {
+    background: #176555;
+    border-color: #176555;
+    box-shadow: 0 6px 14px rgba(23,101,85,0.45);
+    transform: translateY(-1px);
+}
+
+body .ui-button.ui-state-focus,
+body .p-button:focus {
+    outline: 2px solid rgba(56,189,248,0.8);
+    outline-offset: 1px;
+}
+
+/* Botões secundários / cinza */
+body .ui-button.ui-button-secondary,
+body .p-button.p-button-secondary {
+    background: #E5E7EB;
+    border-color: #E5E7EB;
+    color: #111827;
+    box-shadow: none;
+}
+
+body .ui-button.ui-button-secondary:hover,
+body .p-button.p-button-secondary:hover {
+    background: #D1D5DB;
+    border-color: #D1D5DB;
+}
+
+/* Mensagens / Growl */
+body .ui-messages-info,
+body .ui-growl-info {
+    border-radius: 8px;
+    border-color: #1F8A70;
+    background: #ECFDF3;
+    color: #14532D;
+}
+
+body .ui-messages-error,
+body .ui-growl-error {
+    border-radius: 8px;
+}
+
+/* Inputs */
+body .ui-inputfield,
+body .p-inputtext {
+    border-radius: 8px;
+    border-color: #CBD5E1;
+    padding: .5rem .75rem;
+}
+
+body .ui-inputfield:focus,
+body .p-inputtext:focus {
+    border-color: #1F8A70;
+    box-shadow: 0 0 0 1px rgba(31,138,112,0.35);
+}
+
+/* Títulos e textos */
+h1, h2, h3, h4 {
+    color: #0F172A;
+    font-weight: 600;
+}
+
+.text-muted,
+.text-color-secondary {
+    color: #6B7280 !important;
+}
+
+/* Tabelas */
+body .ui-datatable thead th,
+body .p-datatable thead th {
+    background-color: #EFF4FB;
+    color: #0F172A;
+    font-weight: 600;
+}
+
+body .ui-datatable tbody tr:nth-child(even),
+body .p-datatable tbody tr:nth-child(even) {
+    background-color: #F9FAFB;
+}
+
+/* Abas */
+body .ui-tabs-nav li.ui-state-active a,
+body .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    background: #1F8A70;
+    color: #FFFFFF;
+    border-radius: 999px;
+}
+
+body .ui-tabs-nav li a,
+body .p-tabview-nav li .p-tabview-nav-link {
+    border-radius: 999px;
+}
+
+/* Login page helpers */
+.login-wrapper {
+    background: radial-gradient(circle at top left, #28B5B5 0, #1F8A70 40%, #0F172A 100%);
+    min-height: 100vh;
+}

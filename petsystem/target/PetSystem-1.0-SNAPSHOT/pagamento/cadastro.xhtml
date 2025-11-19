@@ -1,80 +1,82 @@
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:h="http://xmlns.jcp.org/jsf/html"
-      xmlns:f="http://xmlns.jcp.org/jsf/core"
-      xmlns:p="http://primefaces.org/ui">
+<ui:composition
+    template="/WEB-INF/template.xhtml"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:f="http://xmlns.jcp.org/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
 
-<h:head>
-    <title>Cadastro de Pagamento</title>
-</h:head>
+    <ui:define name="title">Cadastro de Pagamento - PetSystem</ui:define>
 
-<h:body>
-<h:form id="form">
-    <p:growl id="msgs" showDetail="true" />
+    <ui:define name="content">
+        <div class="card">
+            <h:form id="form">
+                <p:growl id="msgs" showDetail="true" />
 
-    <p:panel header="Cadastro de Pagamento">
-        <p:panelGrid columns="2" layout="grid" styleClass="p-fluid"
-                     columnClasses="ui-g-12 ui-md-3, ui-g-12 ui-md-9">
+                <p:panel header="Cadastro de Pagamento">
+                    <p:panelGrid columns="2" layout="grid" styleClass="p-fluid"
+                                 columnClasses="ui-g-12 ui-md-3, ui-g-12 ui-md-9">
 
-            <p:outputLabel for="tutor" value="Tutor" />
-            <p:selectOneMenu id="tutor"
-                             value="#{pagamentoController.pagamento.tutor}"
-                             converter="tutorConverter"
-                             filter="true" filterMatchMode="contains"
-                             required="true" requiredMessage="Tutor é obrigatório.">
-                <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true" />
-                <f:selectItems value="#{pagamentoController.tutores}" var="t"
-                               itemLabel="#{t.nome}" itemValue="#{t}" />
-            </p:selectOneMenu>
+                        <p:outputLabel for="tutor" value="Tutor" />
+                        <p:selectOneMenu id="tutor"
+                                         value="#{pagamentoController.pagamento.tutor}"
+                                         converter="tutorConverter"
+                                         filter="true" filterMatchMode="contains"
+                                         required="true" requiredMessage="Tutor é obrigatório.">
+                            <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true" />
+                            <f:selectItems value="#{pagamentoController.tutores}" var="t"
+                                           itemLabel="#{t.nome}" itemValue="#{t}" />
+                        </p:selectOneMenu>
 
-            <p:outputLabel for="mov" value="Movimentação Financeira" />
-            <p:selectOneMenu id="mov"
-                             value="#{pagamentoController.pagamento.movimentacao}"
-                             converter="financeiroMovimentacaoConverter"
-                             filter="true" filterMatchMode="contains"
-                             required="true" requiredMessage="Movimentação é obrigatória.">
-                <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true" />
-                <f:selectItems value="#{pagamentoController.movimentacoes}" var="m"
-                               itemLabel="#{m.descricao}" itemValue="#{m}" />
-            </p:selectOneMenu>
+                        <p:outputLabel for="mov" value="Movimentação Financeira" />
+                        <p:selectOneMenu id="mov"
+                                         value="#{pagamentoController.pagamento.movimentacao}"
+                                         converter="financeiroMovimentacaoConverter"
+                                         filter="true" filterMatchMode="contains"
+                                         required="true" requiredMessage="Movimentação é obrigatória.">
+                            <f:selectItem itemLabel="Selecione..." itemValue="#{null}" noSelectionOption="true" />
+                            <f:selectItems value="#{pagamentoController.movimentacoes}" var="m"
+                                           itemLabel="#{m.descricao}" itemValue="#{m}" />
+                        </p:selectOneMenu>
 
-            <p:outputLabel for="valorPago" value="Valor Pago" />
-            <p:inputNumber id="valorPago"
-                           value="#{pagamentoController.pagamento.valorPago}"
-                           required="true" requiredMessage="Valor pago é obrigatório."
-                           decimalPlaces="2" thousandSeparator="." decimalSeparator="," />
+                        <p:outputLabel for="valorPago" value="Valor Pago" />
+                        <p:inputNumber id="valorPago"
+                                       value="#{pagamentoController.pagamento.valorPago}"
+                                       required="true" requiredMessage="Valor pago é obrigatório."
+                                       decimalPlaces="2" thousandSeparator="." decimalSeparator="," />
 
-            <p:outputLabel for="data" value="Data do Pagamento" />
-            <p:datePicker id="data"
-                          value="#{pagamentoController.pagamento.dataPagamento}"
-                          pattern="dd/MM/yyyy" showIcon="true"
-                          required="true" requiredMessage="Data é obrigatória." />
+                        <p:outputLabel for="data" value="Data do Pagamento" />
+                        <p:datePicker id="data"
+                                      value="#{pagamentoController.pagamento.dataPagamento}"
+                                      pattern="dd/MM/yyyy" showIcon="true"
+                                      required="true" requiredMessage="Data é obrigatória." />
 
-            <p:outputLabel for="forma" value="Forma de Pagamento" />
-            <p:selectOneMenu id="forma"
-                             value="#{pagamentoController.pagamento.formaPagamento}"
-                             required="true" requiredMessage="Forma de pagamento é obrigatória.">
-                <f:selectItem itemLabel="Selecione..." itemValue="" noSelectionOption="true" />
-                <f:selectItem itemLabel="Dinheiro" itemValue="DINHEIRO" />
-                <f:selectItem itemLabel="Cartão de Crédito" itemValue="CREDITO" />
-                <f:selectItem itemLabel="Cartão de Débito" itemValue="DEBITO" />
-                <f:selectItem itemLabel="PIX" itemValue="PIX" />
-            </p:selectOneMenu>
+                        <p:outputLabel for="forma" value="Forma de Pagamento" />
+                        <p:selectOneMenu id="forma"
+                                         value="#{pagamentoController.pagamento.formaPagamento}"
+                                         required="true" requiredMessage="Forma de pagamento é obrigatória.">
+                            <f:selectItem itemLabel="Selecione..." itemValue="" noSelectionOption="true" />
+                            <f:selectItem itemLabel="Dinheiro" itemValue="DINHEIRO" />
+                            <f:selectItem itemLabel="Cartão de Crédito" itemValue="CREDITO" />
+                            <f:selectItem itemLabel="Cartão de Débito" itemValue="DEBITO" />
+                            <f:selectItem itemLabel="PIX" itemValue="PIX" />
+                        </p:selectOneMenu>
 
-        </p:panelGrid>
+                    </p:panelGrid>
 
-        <div class="p-mt-3">
-            <p:commandButton value="Salvar"
-                             action="#{pagamentoController.salvar}"
-                             update=":form:msgs"
-                             icon="pi pi-check"
-                             styleClass="p-button-success p-mr-2" />
-            <p:button value="Voltar para a lista"
-                      outcome="/pagamento/lista.xhtml?faces-redirect=true"
-                      icon="pi pi-arrow-left"
-                      styleClass="p-button p-button-secondary" />
+                    <div class="p-mt-3">
+                        <p:commandButton value="Salvar"
+                                         action="#{pagamentoController.salvar}"
+                                         update=":form:msgs"
+                                         icon="pi pi-check"
+                                         styleClass="p-button-success p-mr-2" />
+                        <p:button value="Voltar para a lista"
+                                  outcome="/pagamento/lista.xhtml?faces-redirect=true"
+                                  icon="pi pi-arrow-left"
+                                  styleClass="p-button p-button-secondary" />
+                    </div>
+                </p:panel>
+            </h:form>
         </div>
-    </p:panel>
-</h:form>
-</h:body>
-</html>
+    </ui:define>
+</ui:composition>
